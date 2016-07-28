@@ -1,0 +1,35 @@
+<html>
+<head>
+	<title>{% block title %}Restaurant Home{% endblock %}</title>
+	{% load staticfiles %}
+	{% load bootstrap3 %}
+	{% bootstrap_css %}
+	{% bootstrap_javascript %}
+	{% block header %}
+	<div class="container">
+	<center><h1>Restaurant</h1>
+	Current Time : {{ time }}
+	</center>
+	</div>
+	{% endblock %}
+</head>
+<body>
+<br />
+{% block content %}
+	<div class="navbar navbar-default " role="navigation">
+  	<div class="container">
+    <div class="navbar-header">
+	<a href="{% url 'home' %}">
+	{% bootstrap_button 'HOME' %}
+	</a>
+	<a href="{% url 'order' %}">
+		{% bootstrap_button 'ORDER' %}
+	</a>
+	</div>
+	</div>
+	</div>
+{% endblock %}
+</body>
+{% block footer %}
+{% endblock %}
+</html>
