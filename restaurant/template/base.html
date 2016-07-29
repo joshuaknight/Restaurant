@@ -2,21 +2,43 @@
 <head>
 	<title>{% block title %}{% endblock %}</title>
 	{% load staticfiles %}
+	<style>
+	.doc
+	{
+		background-size:100%;
+		background-color:pink;
+	}	
+	.container{ 
+		color:blue;
+	}	
+	.container{
+		background-size:100%;
+		background-color:pink;
+		border-style:solid;
+		border-width:1px;
+		
+	}
+
+</style>	
+	</style>
 	{% load bootstrap3 %}
 	{% bootstrap_css %}
 	{% bootstrap_javascript %}
 	{% block header %}
 	<div class="container">
-	<center><h1>Restaurant</h1>
+	<div class="doc">
+	<center><h1 class="rest">Restaurant</h1>
 	Current Time : {{ time }}
 	</center>
+	</div>
 	</div>
 	{% endblock %}
 </head>
 <body>
 <br />
+	
 {% block content %}
-	<div class="navbar navbar-default " role="navigation">
+	<div class="navbar navbar-custom" role="navigation">
   	<div class="container">
     <div class="navbar-header">
 	<a href="{% url 'home' %}">
