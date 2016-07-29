@@ -26,7 +26,8 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'bootstrap3',
-    'restaurant'
+    'restaurant',
+    'contact',
 ]
 
 MIDDLEWARE_CLASSES = [
@@ -45,7 +46,8 @@ ROOT_URLCONF = 'restaurant.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR + '/restaurant/template',],
+        'DIRS': [BASE_DIR + '/restaurant/template',
+                 BASE_DIR + '/contact/template',],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
