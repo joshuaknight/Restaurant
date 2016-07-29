@@ -18,3 +18,10 @@ class OrderForm(ModelForm):
 		help_texts = {
 			'Describe' : _('Describe Us Your Own recepie')
 		}
+
+class PaymentForm(ModelForm):	
+	class Meta:
+		model = Payment_Process		
+		fields = '__all__'
+
+		

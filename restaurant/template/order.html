@@ -2,12 +2,13 @@
 {% load bootstrap3 %}
 {% bootstrap_form_errors form %}
 {% block content %}
-<form class="container" enctype="multipart/form-data" action="" method = "post">
-{% csrf_token %}	
+<form class="form-horizontal" role="form" enctype="multipart/form-data" action="" method = "post">
+{% csrf_token %}
+<div class="container">
 {{ form.managment_form }}
 {{ form.media }}
-{% bootstrap_form form layout='horizontal'  %}
-<center>{% buttons submit='ORDER' reset='Cancel' %}</center>
-{% endbuttons %}
+{% bootstrap_form form layout='horizontal' %}
+{% buttons submit='ORDER' reset='Cancel' layout='horizontal' %}
+{% endbuttons %}</div>	
 </form>
 {% endblock %}

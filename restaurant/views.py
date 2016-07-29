@@ -23,17 +23,32 @@ class Form(FormView):
 		return context
 	
 	def get_success_url(self):
-		return reverse('payement')
+		return reverse('mode_of_pay')
 
 	def form_valid(self,form):
 		form.save()
 		return super(Form,self).form_valid(form)
 
-class Order_Pay(TemplateView):
+class mode_of_pay(TemplateView):
+	template_name = 'mode_of_pay.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(mode_of_pay,self).get_context_data(**kwargs)
+		context['time'] = timezone.now()
+		return context		
+
+class Order_Pay(FormView):
 	template_name = 'pay.html'
+	form_class = PaymentForm
+	
 	def get_context_data(self,**kwargs):
 		context = super(Order_Pay,self).get_context_data(**kwargs)
-		message = "Thank you for Contacting Us Please Wait Let Us Get Back to You"
-		context['message'] = message
 		context['time'] = timezone.now()
 		return context 
+
+	def form_valid(self,form):
+		form.save()
+		return super(Order_Pay,self).form_valid(form)
+
+	def get_success_url(self):
+		return reverse('home')

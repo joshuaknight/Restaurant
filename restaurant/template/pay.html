@@ -1,7 +1,18 @@
 {% include "base.html" %}
-{% block content %}
+{% load static %}
+{% load bootstrap3 %}
 
-<div class="container">
-<h3>{{message}}</h3>
-</div>
+{% block content %}
+	{% bootstrap_form_errors form %}
+	<form role="form" action="" method="post" class="form-horizontal">
+		{% csrf_token %}
+		<div class="container">
+			{{ form.managment_form }}
+			{{ form.media }}
+			{% bootstrap_form form layout="horizontal" %}
+			{% buttons submit='PAY' reset='CANCEL' layout="horizontal" %}
+			{% endbuttons %}
+			</div>
+	</form>
+		
 {% endblock %}
