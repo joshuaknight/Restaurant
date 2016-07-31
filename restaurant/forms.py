@@ -44,6 +44,16 @@ class ContactForm(ModelForm):
        		'email' : _('The way to contact you back'),
        	}
 
-	
+class Order_table_Form(ModelForm):
+	class Meta:
+		model= order_table
+		fields = '__all__'
+
+		widgets = {
+			'class_of_booking' : forms.Select(choices = sorted_class_of_booking),
+			'number_of_people' : forms.Select(choices= sorted_number_of_people),
+			'is_it_a_special_occasion' : forms.Select(choices = sorted_special_occasion)
+
+		}
 
 		

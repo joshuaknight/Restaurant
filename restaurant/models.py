@@ -59,10 +59,23 @@ TITLE_CHOICES = {
 	('Ms','Ms'),
 }
 
+special_occasion ={
+	(1,'Yes'),(2,'No'),(3,'Maybe')
+}
+number_of_people = {
+	(1,'1'),(2,'2'),(3,'3-5'),(4,'5-10'),(5,'More Than 10')
+}
+class_of_booking = {
+	(1,'Business'),(2,'Couples'),(3,'Family'),(4,'Friends'),(5,'Party')
+}
+sorted_class_of_booking = sorted(class_of_booking,key= lambda x:x[1])
+sorted_number_of_people = sorted(number_of_people,key = lambda x:x[1])
+sorted_special_occasion = sorted(special_occasion,key=lambda x:x[1])
+sort_topping = sorted(Toppings, key=lambda x: x[1])
 s = {
 	(1,1),(2,2),(3,3),(4,4),(5,5),(6,6),(7,7),(8,8),(9,9),(10,10),
 }
-sort_topping = sorted(Toppings, key=lambda x: x[1])
+
 Num = sorted(s, key=lambda x: x[1])
 
 class OrderSpecial(models.Model):
@@ -90,3 +103,11 @@ class Contact_all(models.Model):
 	email = models.EmailField()
 	query = models.TextField(validators = [validate_len],max_length = 400)
 	date = models.DateField(null=True)	
+
+class order_table(models.Model):
+	table_name = models.CharField(max_length=10,validators=[validate_name])
+	booking_date = models.DateField()
+	duration_booking_in_hours = models.PositiveIntegerField()
+	class_of_booking = models.CharField(max_length=100)
+	number_of_people = models.CharField(max_length=100)
+	is_it_a_special_occasion = models.CharField(max_length=10)

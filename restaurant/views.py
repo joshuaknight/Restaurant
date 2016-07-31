@@ -45,3 +45,9 @@ class contact(Form,FormView):
 	def get_success_url(self):
 		return reverse('home')
 	
+class Order_Table(FormView):
+	template_name = 'form.html'
+	form_class = Order_table_Form	
+
+	def get_success_url(self):
+		return reverse('home')	
