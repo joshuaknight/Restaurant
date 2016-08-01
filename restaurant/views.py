@@ -1,7 +1,7 @@
 from django.utils import timezone
 from django.shortcuts import render
 from django.http import *
-import requests
+from django.core.paginator import *
 from django.forms import formset_factory
 from django.contrib.auth.decorators import login_required
 from django.views.generic import *
@@ -93,6 +93,14 @@ class Order_Table(Form,FormView):
 class about(home,TemplateView):
 	template_name = 'about_us.html'		
 
-class render_recepie(DetailView):
-	template_name = 'detailview.html'
-	model = recepie
+def render_recepie(request):
+    recepie_list = recepie.objects.all()
+    paginator = Paginator(recepie_list,4) 
+    try:
+    	page = request.GET.get('page')
+        recepie_all = paginator.page(page)
+    except PageNotAnInteger:
+        recepie_all = paginator.page(1)
+    except EmptyPage:
+        recepie_all = paginator.page(paginator.num_pages)
+    return render(request, 'recepie_list.html', {'all': recepie_all})
