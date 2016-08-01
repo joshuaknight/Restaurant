@@ -29,6 +29,8 @@ INSTALLED_APPS = [
     'restaurant',
 ]
 
+GEOIP_PATH = os.path.join(BASE_DIR, 'geoip')
+
 MIDDLEWARE_CLASSES = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',

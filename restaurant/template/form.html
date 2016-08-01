@@ -1,6 +1,8 @@
 {% include "base.html" %}
 {% load static %}
 {% load bootstrap3 %}
+{% block title %}
+{% endblock %}
 
 {% block content %}
 	{% bootstrap_form_errors form %}
@@ -10,9 +12,13 @@
 			{{ form.managment_form }}
 			{{ form.media }}
 			{% bootstrap_form form layout="horizontal" %}
-			{% buttons submit='SUBMIT' reset='CANCEL' layout="horizontal" %}
+			{% buttons submit=key reset='CANCEL' layout="horizontal" %}
 			{% endbuttons %}
 			</div>
 	</form>
 		
+{% endblock %}
+
+{% block footer %}
+	
 {% endblock %}

@@ -98,6 +98,10 @@ class recepie(models.Model):
 	emailid = models.EmailField()
 	date = models.DateField()
 
+
+	def __unicode__(self):
+		return "%s"%(self.recepie_name,self.date)
+
 class Contact_all(models.Model):
 	name  = models.CharField(validators=[validate_name],max_length = 100) 
 	email = models.EmailField()
@@ -111,3 +115,4 @@ class order_table(models.Model):
 	class_of_booking = models.CharField(max_length=100)
 	number_of_people = models.CharField(max_length=100)
 	is_it_a_special_occasion = models.CharField(max_length=10)
+

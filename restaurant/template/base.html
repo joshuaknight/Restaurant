@@ -27,8 +27,9 @@
 	{% block header %}
 	<div class="container">
 	<div class="doc">
-	<center><h1 class="rest">Restaurant</h1>
+	<center><h1 class="rest">My Restaurant</h1>
 	Current Time : {{ time }}
+	Country : {{ country }}
 	</center>
 	</div>
 	</div>
@@ -56,11 +57,16 @@
 	<a href="{% url 'table' %}">
 	{% bootstrap_button 'BOOK TABLE' %}
 	</a>
+	<a href="{% url 'about' %}">
+	{% bootstrap_button 'ABOUT US' %}
+	</a>
 	</div>
 	</div>
 	</div>
 {% endblock %}
 </body>
 {% block footer %}
+<center><h3>{{message}}</h3></center>
+
 {% endblock %}
 </html>
