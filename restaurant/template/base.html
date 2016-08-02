@@ -48,6 +48,9 @@
 	<a href="{% url 'order' %}">
 		{% bootstrap_button 'ORDER' %}
 	</a>
+	<a href="{% url 'current' %}">
+		{% bootstrap_button 'CURRENT ORDER' %}
+	</a>
 	<a href="{% url 'contact' %}">
 	{% bootstrap_button 'CONTACT US' %}
 	</a>
@@ -73,6 +76,6 @@
 </body>
 {% block footer %}
 <center><h3>{{message}}</h3></center>
-
+<center><h3>{{name}}</h3></center>
 {% endblock %}
 </html>

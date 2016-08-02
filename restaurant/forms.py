@@ -56,4 +56,13 @@ class Order_table_Form(ModelForm):
 
 		}
 
+class ModeForm(ModelForm):
+	class Meta:
+		model = Mode
+		fields = '__all__'
+
+		widgets = {
+			'mode_of_payement' : forms.RadioSelect(choices=Mode_Choice)
+		}		
+
 		

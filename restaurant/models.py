@@ -13,6 +13,7 @@ class IntegerRangeField(models.IntegerField):
         defaults.update(kwargs)
         return super(IntegerRangeField, self).formfield(**defaults)
 
+
 def validate_describe(value,length=30):
 	regex = r"([a-zA-Z])"
 	if (len(str(value)) <= length or not re.search(regex,value)):
@@ -28,7 +29,10 @@ def validate_len(value,length=20):
 	if not re.search(regex,value) or len(str(value)) < length:
 		raise ValidationError(u"Not Valid Be More Specific")
 		
-
+def validate_recepie(value):
+	regex = r"([a-zA-Z])"
+	if not re.search(regex,value):
+		raise ValidationError('Please Select a Recepie')
 
 Menu = {('....','....'),
 		('Burger','Burger'),
@@ -45,11 +49,11 @@ Flavour_Menu = {
 }
 Toppings = {
 	('....','....'),
-	(1,'Onion'),
-	(2,'Cheese'),
-	(3,'MaxCheese'),
-	(4,'TomatoSauce'),
-	(5,'ItalianSauce'),
+	('Onion','Onion'),
+	('Cheese','Cheese'),
+	('MaxCheese','MaxCheese'),
+	('TomatoSauce','TomatoSauce'),
+	('ItalianSauce','ItalianSauce'),
 }
 
 TITLE_CHOICES = {
@@ -68,6 +72,12 @@ number_of_people = {
 class_of_booking = {
 	(1,'Business'),(2,'Couples'),(3,'Family'),(4,'Friends'),(5,'Party')
 }
+
+Mode_Choice = {(1,'CASH ON DELIVERY'),
+				(2,'INTERNET BANKING'),
+				(3,'DEBIT CARD'),
+				}
+
 sorted_class_of_booking = sorted(class_of_booking,key= lambda x:x[1])
 sorted_number_of_people = sorted(number_of_people,key = lambda x:x[1])
 sorted_special_occasion = sorted(special_occasion,key=lambda x:x[1])
@@ -80,9 +90,9 @@ Num = sorted(s, key=lambda x: x[1])
 
 class OrderSpecial(models.Model):
 	Quantity = models.IntegerField()
-	Select = models.CharField(max_length = 100)
-	Flavour = models.CharField(max_length = 100)
-	Toppings = models.CharField(max_length=100)
+	Select = models.CharField(max_length = 100,validators=[validate_recepie])
+	Flavour = models.CharField(max_length = 100,validators=[validate_recepie])
+	Toppings = models.CharField(max_length=100,validators=[validate_recepie])
 	Describe = models.TextField(max_length=100,validators = [validate_describe])
 
 class Payment_Process(models.Model):
@@ -116,3 +126,5 @@ class order_table(models.Model):
 	number_of_people = models.CharField(max_length=100)
 	is_it_a_special_occasion = models.CharField(max_length=10)
 
+class Mode(models.Model):
+	mode_of_payement = models.CharField(max_length=100)

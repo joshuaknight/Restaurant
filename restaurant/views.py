@@ -34,8 +34,22 @@ class Form(home,FormView):
 		form.save()
 		return super(Form,self).form_valid(form)
 
-class mode_of_pay(home,TemplateView):
-	template_name = 'mode_of_pay.html'	
+class mode_of_pay(Form,FormView):
+	template_name = 'form.html'
+	form_class = ModeForm	
+
+	def get_context_data(self,**kwargs):
+		context = super(mode_of_pay, self).get_context_data(**kwargs)
+		context['key'] = 'NEXT'
+		return context	
+	
+	def get_success_url(self):
+		if self.request.POST['mode_of_payement'] == '3':
+			return reverse('payement')			
+		if self.request.POST['mode_of_payement'] == '1':
+			return reverse('home')			
+		if self.request.POST['mode_of_payement'] == '2':			
+			return reverse('internet')
 
 class Order_Pay(Form,FormView):
 	template_name = 'form.html'
@@ -45,7 +59,14 @@ class Order_Pay(Form,FormView):
 		context = super(Order_Pay, self).get_context_data(**kwargs)
 		context['key'] = 'PAY'
 		return context
-	
+
+class internet(home,TemplateView):
+	template_name = 'base.html'
+	def get_context_data(self,**kwargs):
+		context = super(internet, self).get_context_data(**kwargs)
+		context['message'] = 'Internet Banking Is Down at the Momment Sorry for the Inconvenience !'
+		return context
+
 class add_recepie(Form,FormView):
 	template_name = 'form.html'
 	form_class = RecepieForm
@@ -120,3 +141,18 @@ def render_table(request):
 	except EmptyPage:
 	    book = paginator.page(paginator.num_pages)
 	return render(request, 'book_list.html', {'all': book,})
+
+def render_order(request):
+	order_list = OrderSpecial.objects.all().order_by('-id')
+	if order_list:
+		return render(request, 'order_list.html', {'i': order_list[0]})
+	else:
+		message = "Click Here to Order"
+		return render(request, 'order_list.html', {'i': order_list,
+												   'order_message' : message})				
+
+
+def delete(request):
+	order = OrderSpecial.objects.all().order_by('-id')
+	order.delete()
+	return HttpResponseRedirect('/order/current')

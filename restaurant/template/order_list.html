@@ -1,0 +1,41 @@
+{% include "base.html" %}
+{% load static %}
+{% load bootstrap3 %}
+{% block title %}
+{% endblock %}
+
+{% block content %}
+
+<div class="container">
+	{% if i %}
+<table class="table">	
+	<tr>
+		<th>QUANTITY</th>
+		<th>Selected</th>
+		<th>Flavour</th>
+		<th>Toppings</th>
+	</tr>		
+		<tr>
+		<td>{{ i.Quantity }}</td>
+		<td>{{ i.Select }}</td>
+		<td>{{ i.Flavour }}</td>
+		<td>{{ i.Toppings }}</td>
+		<td>
+		<a href="{% url 'delete' %}">{% bootstrap_icon 'Remove' %}</a>
+		</td>
+		</tr>		
+</table>			
+	<a href="{% url 'mode_of_pay' %}">
+	{% buttons submit='NEXT' layout='horizontal' %}
+	{% endbuttons %}
+	</a>
+	{% endif %}
+{% if order_message %}
+	<center><h3><a href="{% url 'order' %}">{{order_message}}</a></h3></center>
+	{% endif %}		
+</div>
+{% endblock %}
+	
+{% block footer %}
+
+{% endblock %}

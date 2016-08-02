@@ -6,6 +6,7 @@ from django.contrib.auth.decorators import login_required
 urlpatterns = [
     url(r'^admin/', admin.site.urls),
     url(r'^$', home.as_view(),name = 'home'),
+    url(r'^order/mode/pay/internet/$',internet.as_view(),name = 'internet'),
     url(r'^about/$', about.as_view(),name = 'about'),
     url(r'^contact/successful/$',(contact_send.as_view()),name='contact_send'),
     url(r'^recepie/$', add_recepie.as_view(),name = 'recepie'),
@@ -16,4 +17,6 @@ urlpatterns = [
     url(r'^order/mode/pay$', Order_Pay.as_view(),name = 'payement'),
     url(r'^recepie/list$',render_recepie, name='render_recepie'),
     url(r'^Book/table/list$',render_table, name='render_table'),
+    url(r'^order/current/$',render_order, name='current'),
+    url(r'^order/current/delete$',delete, name='delete'),
 ]
