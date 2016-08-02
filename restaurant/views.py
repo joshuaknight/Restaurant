@@ -56,7 +56,7 @@ class add_recepie(Form,FormView):
 		return context
 
 	def get_success_url(self):
-		return reverse('home')
+		return reverse('render_recepie')
 
 class contact(Form,FormView):
 	template_name = 'form.html'
@@ -88,13 +88,13 @@ class Order_Table(Form,FormView):
 		return context
 
 	def get_success_url(self):
-		return reverse('home')	
+		return reverse('render_table')	
 
 class about(home,TemplateView):
 	template_name = 'about_us.html'		
 
 def render_recepie(request):
-    recepie_list = recepie.objects.all()
+    recepie_list = recepie.objects.all().order_by('-id')
     paginator = Paginator(recepie_list,4) 
     try:
     	page = request.GET.get('page')
@@ -103,4 +103,20 @@ def render_recepie(request):
         recepie_all = paginator.page(1)
     except EmptyPage:
         recepie_all = paginator.page(paginator.num_pages)
-    return render(request, 'recepie_list.html', {'all': recepie_all})
+    return render(request, 'recepie_list.html', {'all': recepie_all,
+    											  'key1':'RecepieName',
+    											  'key2':'EmailID',
+    											  'key3':'Date'})
+
+
+def render_table(request):
+	book_list = order_table.objects.all().order_by('-id')
+	paginator = Paginator(book_list,2) 
+	try:
+		page = request.GET.get('page')
+	   	book = paginator.page(page)
+	except PageNotAnInteger:
+	    book = paginator.page(1)
+	except EmptyPage:
+	    book = paginator.page(paginator.num_pages)
+	return render(request, 'book_list.html', {'all': book,})

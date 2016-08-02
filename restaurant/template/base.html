@@ -54,11 +54,14 @@
 	<a href="{% url 'recepie' %}">
 	{% bootstrap_button 'ADD RECEPIE' %}
 	</a>
-	<a href="{% url 'recepie-detail' %}">
+	<a href="{% url 'render_recepie' %}">
 	{% bootstrap_button 'ALL RECEPIE' %}
 	</a>
 	<a href="{% url 'table' %}">
 	{% bootstrap_button 'BOOK TABLE' %}
+	</a>
+	<a href="{% url 'render_table' %}">
+	{% bootstrap_button 'BOOKED TABLES' %}
 	</a>
 	<a href="{% url 'about' %}">
 	{% bootstrap_button 'ABOUT US' %}

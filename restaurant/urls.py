@@ -14,5 +14,6 @@ urlpatterns = [
     url(r'^Book/table$', Order_Table.as_view(),name = 'table'),
     url(r'^order/mode/$', mode_of_pay.as_view(),name = 'mode_of_pay'),
     url(r'^order/mode/pay$', Order_Pay.as_view(),name = 'payement'),
-    url(r'^recepie/list$',render_recepie, name='recepie-detail'),
+    url(r'^recepie/list$',render_recepie, name='render_recepie'),
+    url(r'^Book/table/list$',render_table, name='render_table'),
 ]
