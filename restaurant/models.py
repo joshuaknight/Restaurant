@@ -34,6 +34,10 @@ def validate_recepie(value):
 	if not re.search(regex,value):
 		raise ValidationError('Please Select a Recepie')
 
+def validate_pass(value,length=8):
+	if len(str(value)) < length:
+		raise ValidationError('Minimum 8 character')
+
 Menu = {('....','....'),
 		('Burger','Burger'),
 		('Pizza','Pizza',),
@@ -88,12 +92,25 @@ s = {
 
 Num = sorted(s, key=lambda x: x[1])
 
+class DeleteManager(models.Manager):
+	def get_query_set(self,**kwargs):
+		context = super(DeleteManager,self).get_query_set(**kwargs)
+		kwargs = {
+				'Quantity',
+				'Select',
+				'Flavour',
+				'Toppings',
+				'Describe'}
+		return context
+
 class OrderSpecial(models.Model):
 	Quantity = models.IntegerField()
 	Select = models.CharField(max_length = 100,validators=[validate_recepie])
 	Flavour = models.CharField(max_length = 100,validators=[validate_recepie])
 	Toppings = models.CharField(max_length=100,validators=[validate_recepie])
 	Describe = models.TextField(max_length=100,validators = [validate_describe])
+	
+
 
 class Payment_Process(models.Model):
 	card_number = IntegerRangeField(min_value=15,max_value=16)
@@ -128,3 +145,16 @@ class order_table(models.Model):
 
 class Mode(models.Model):
 	mode_of_payement = models.CharField(max_length=100)
+
+class Login(models.Model):
+	username = models.CharField(max_length=10) 
+	password = models.CharField(max_length=16)
+
+class Signup(models.Model):
+	username = models.CharField(max_length=10) 
+	password = models.CharField(max_length=16,validators=[validate_pass])
+	confirm_password = models.CharField(max_length=16,validators=[validate_pass])
+	emailid = models.EmailField()
+
+
+

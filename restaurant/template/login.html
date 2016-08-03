@@ -1,0 +1,29 @@
+{% include "base.html" %}
+{% load bootstrap3 %}
+{% block content %}
+	
+  <div class="container">
+  {% bootstrap_form_errors form layout='horizontal' %}
+  <form class="form-horizontal" action="" method="post">
+  {% csrf_token %}
+	{% bootstrap_form form layout='horizontal' %}
+  {% buttons submit=key layout='horizontal' %}
+  {% endbuttons %}
+  </form>
+
+	<h2>
+   {% if user and not user.is_anonymous %}
+      <a href="{% url 'logout' %}">Logout</a>
+   {% else %}
+     <li>
+       <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with Google</a>
+     </li>
+      <li>
+       <a href="{% url 'register' %}">SignUp</a>
+     </li>
+   {% endif %}
+ 	</h2>
+
+ 	</div>
+
+{% endblock %}

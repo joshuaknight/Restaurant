@@ -1,27 +1,31 @@
+from django.contrib.auth.models import User
 from django.utils import timezone
 from django.shortcuts import render
 from django.http import *
 from django.core.paginator import *
+from django.core.exceptions import ValidationError
 from django.forms import formset_factory
 from django.contrib.auth.decorators import login_required
 from django.views.generic import *
 from .forms import *
 from django.core.urlresolvers import reverse
 from django.contrib.gis.geoip import GeoIP
+from django.contrib.auth import authenticate,login,logout
+from django.contrib.auth.forms import UserCreationForm
 	
-
+login_required
 class home(TemplateView):
 	template_name = 'base.html'
 	def get_context_data(self,**kwargs):
 		context = super(home, self).get_context_data(**kwargs)
 		context['time'] = timezone.now()
+		context['user'] = self.request.user
 		return context
 
 
 class Form(home,FormView):
 	template_name  = 'form.html'
 	form_class = OrderForm
-
 	def get_context_data(self,**kwargs):
 		context = super(Form, self).get_context_data(**kwargs)
 		context['key'] = 'ORDER'
@@ -70,7 +74,6 @@ class internet(home,TemplateView):
 class add_recepie(Form,FormView):
 	template_name = 'form.html'
 	form_class = RecepieForm
-
 	def get_context_data(self,**kwargs):
 		context = super(add_recepie, self).get_context_data(**kwargs)
 		context['key'] = 'ADD RECEPIE'
@@ -82,7 +85,7 @@ class add_recepie(Form,FormView):
 class contact(Form,FormView):
 	template_name = 'form.html'
 	form_class = ContactForm
-
+	#@login_required('/accounts/login')
 	def get_context_data(self,**kwargs):
 		context = super(contact, self).get_context_data(**kwargs)
 		context['key'] = 'SEND'
@@ -113,7 +116,7 @@ class Order_Table(Form,FormView):
 
 class about(home,TemplateView):
 	template_name = 'about_us.html'		
-
+@login_required()
 def render_recepie(request):
     recepie_list = recepie.objects.all().order_by('-id')
     paginator = Paginator(recepie_list,4) 
@@ -127,7 +130,8 @@ def render_recepie(request):
     return render(request, 'recepie_list.html', {'all': recepie_all,
     											  'key1':'RecepieName',
     											  'key2':'EmailID',
-    											  'key3':'Date'})
+    											  'key3':'Date',
+    											  'time': timezone.now()})
 
 
 def render_table(request):
@@ -140,19 +144,101 @@ def render_table(request):
 	    book = paginator.page(1)
 	except EmptyPage:
 	    book = paginator.page(paginator.num_pages)
-	return render(request, 'book_list.html', {'all': book,})
+	return render(request, 'book_list.html', {'all': book,
+											  'time' : timezone.now()})
 
 def render_order(request):
 	order_list = OrderSpecial.objects.all().order_by('-id')
 	if order_list:
-		return render(request, 'order_list.html', {'i': order_list[0]})
+		return render(request, 'order_list.html', {'i': order_list[0],
+												'time' : timezone.now()})
 	else:
 		message = "Click Here to Order"
 		return render(request, 'order_list.html', {'i': order_list,
-												   'order_message' : message})				
+												   'order_message' : message,
+												   	'time' : timezone.now()})				
 
 
 def delete(request):
 	order = OrderSpecial.objects.all().order_by('-id')
 	order.delete()
 	return HttpResponseRedirect('/order/current')
+
+
+
+class Login(FormView):
+	template_name = 'login.html'
+	form_class = LoginForm
+
+	def form_valid(self,form):
+		username = self.request.POST['username']
+		password = self.request.POST['password']
+		user = authenticate(username = username,password=password)
+   		if user is None:
+   			raise ValidationError('Password and Username Doesnt Match')
+		if user:   			
+			user.backend = 'django.contrib.auth.backends.ModelBackend'
+			login(self.request,user)
+   			return super(Login,self).form_valid(form)		
+
+	def get_context_data(self,**kwargs):
+		context = super(Login, self).get_context_data(**kwargs)
+		context['user'] = self.request.user
+		context['key'] = 'LOGIN'
+		context['time'] = timezone.now()
+		return context
+
+	def save_profile(backend, user, response, *args, **kwargs):
+		profile = user.get_profile()
+		if profile is None:
+			profile = Profile(user_id=user.id)
+		profile.gender = response.get('gender')
+  		profile.link = response.get('link')
+		profile.timezone = response.get('timezone')
+   		profile.save()
+
+	def get_success_url(self):
+		username = self.request.POST['username']
+		return reverse('home')
+
+class signup(FormView):
+	template_name = 'login.html'
+	form_class = SignUpForm
+
+
+	def get_context_data(self,**kwargs):
+		context = super(signup, self).get_context_data(**kwargs)
+		context['user'] = self.request.user
+		context['key'] = 'REGISTER'
+		context['time'] = timezone.now()
+		return context
+
+	def form_valid(self,form):
+		msg = []
+		if self.request.POST['password'] != self.request.POST['confirm_password']:
+			raise ValidationError('Password Doesnt Match')			
+		username = self.request.POST['username']	
+		password = self.request.POST['password']
+		email = self.request.POST['emailid']		
+		user = authenticate(username = username,password = password)
+		if user is None:
+			new_user = User.objects.create_user(username,email,password)
+			new_user.backend = 'django.contrib.auth.backends.ModelBackend'
+			login(self.request,new_user)
+			msg.append('Successfully Logged In')
+			return super(signup,self).form_valid(form)
+		if user is not None:
+			raise ValidationError("User Already Exsist")			
+
+	def get_success_url(self):
+		return reverse('home')			
+
+def logout_(request):	
+	logout(request)
+	message= "You are Successfully Logged Out"
+	time = timezone.now()
+	return render(request,'base.html',{'message' : message,'time':time})
+
+
+
+

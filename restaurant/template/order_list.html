@@ -30,8 +30,9 @@
 	{% endbuttons %}
 	</a>
 	{% endif %}
+	
 {% if order_message %}
-	<center><h3><a href="{% url 'order' %}">{{order_message}}</a></h3></center>
+	<center><h3>No Orders Yet !<a href="{% url 'order' %}">{{order_message}}</a></h3></center>
 	{% endif %}		
 </div>
 {% endblock %}

@@ -20,7 +20,6 @@
 	}
 
 </style>	
-	</style>
 	{% load bootstrap3 %}
 	{% bootstrap_css %}
 	{% bootstrap_javascript %}
@@ -28,9 +27,14 @@
 	<div class="container">
 	<div class="doc">
 	<center><h1 class="rest">My Restaurant</h1>
-	Current Time : {{ time }}
-	Country : {{ country }}
-	</center>
+	{% if not user.is_active %}
+	<center><h3><a href="{% url 'login' %}">Login</a></h3></center>
+	{% endif %}
+	{% if user.is_active %}
+	<center><h3>Welcome {{user}} 	
+	<a href="{% url 'logout' %}">Logout</a></h3></center>
+	{% endif %}
+	Current Time : {{ time }}	
 	</div>
 	</div>
 	{% endblock %}
@@ -76,6 +80,5 @@
 </body>
 {% block footer %}
 <center><h3>{{message}}</h3></center>
-<center><h3>{{name}}</h3></center>
 {% endblock %}
 </html>

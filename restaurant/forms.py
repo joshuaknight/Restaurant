@@ -65,4 +65,21 @@ class ModeForm(ModelForm):
 			'mode_of_payement' : forms.RadioSelect(choices=Mode_Choice)
 		}		
 
-		
+class LoginForm(ModelForm):
+	class Meta:
+		model = Login
+		fields = '__all__'
+
+		widgets = {
+			'password' : forms.PasswordInput()
+		}
+
+class SignUpForm(ModelForm):
+	class Meta:
+		model = Signup
+		fields = '__all__'
+
+		widgets = {
+			'password' : forms.PasswordInput(),
+			'confirm_password' : forms.PasswordInput()
+		}
