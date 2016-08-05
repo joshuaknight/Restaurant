@@ -14,7 +14,8 @@
 		<th>Selected</th>
 		<th>Flavour</th>
 		<th>Toppings</th>
-	</tr>		
+	</tr>	
+		{% for i in i %}	
 		<tr>
 		<td>{{ i.Quantity }}</td>
 		<td>{{ i.Select }}</td>
@@ -24,17 +25,18 @@
 		<a href="{% url 'delete' %}">{% bootstrap_icon 'Remove' %}</a>
 		</td>
 		</tr>		
-</table>			
+		{% endfor %}
+	</table>			
 	<a href="{% url 'mode_of_pay' %}">
 	{% buttons submit='NEXT' layout='horizontal' %}
 	{% endbuttons %}
 	</a>
-	{% endif %}
-	
-{% if order_message %}
-	<center><h3>No Orders Yet !<a href="{% url 'order' %}">{{order_message}}</a></h3></center>
+	{% else %}
+	<center><h3>No Orders Yet !<a href="{% url 'order' %}">Click Here to Order</a></h3></center>
 	{% endif %}		
+
 </div>
+	
 {% endblock %}
 	
 {% block footer %}

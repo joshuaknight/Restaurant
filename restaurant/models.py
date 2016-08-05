@@ -92,17 +92,6 @@ s = {
 
 Num = sorted(s, key=lambda x: x[1])
 
-class DeleteManager(models.Manager):
-	def get_query_set(self,**kwargs):
-		context = super(DeleteManager,self).get_query_set(**kwargs)
-		kwargs = {
-				'Quantity',
-				'Select',
-				'Flavour',
-				'Toppings',
-				'Describe'}
-		return context
-
 class OrderSpecial(models.Model):
 	Quantity = models.IntegerField()
 	Select = models.CharField(max_length = 100,validators=[validate_recepie])
@@ -110,7 +99,8 @@ class OrderSpecial(models.Model):
 	Toppings = models.CharField(max_length=100,validators=[validate_recepie])
 	Describe = models.TextField(max_length=100,validators = [validate_describe])
 	
-
+	def __unicode__(self):
+		return "%s"%(self.Select)
 
 class Payment_Process(models.Model):
 	card_number = IntegerRangeField(min_value=15,max_value=16)
@@ -127,13 +117,16 @@ class recepie(models.Model):
 
 
 	def __unicode__(self):
-		return "%s"%(self.recepie_name,self.date)
+		return "%s"%(self.recepie_name)
 
 class Contact_all(models.Model):
 	name  = models.CharField(validators=[validate_name],max_length = 100) 
 	email = models.EmailField()
 	query = models.TextField(validators = [validate_len],max_length = 400)
 	date = models.DateField(null=True)	
+
+	def __unicode__(self):
+		return "%s"%(self.name)
 
 class order_table(models.Model):
 	table_name = models.CharField(max_length=10,validators=[validate_name])
@@ -142,6 +135,9 @@ class order_table(models.Model):
 	class_of_booking = models.CharField(max_length=100)
 	number_of_people = models.CharField(max_length=100)
 	is_it_a_special_occasion = models.CharField(max_length=10)
+
+	def __unicode__(self):
+		return "%s"%(self.table_name)
 
 class Mode(models.Model):
 	mode_of_payement = models.CharField(max_length=100)

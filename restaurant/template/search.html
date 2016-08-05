@@ -1,0 +1,26 @@
+{% include "base.html" %}
+{% load bootstrap3 %}
+
+{% if search  %}
+	<div class="container">
+	<h4>You Searched For {{q}}</h4>
+	<table class="table">	
+	<tr>
+		<th>TABLENAME</th>
+		<th>BOOKING DATE</th>
+		<th>BOOKING CLASS</th>
+	</tr>		
+	
+	{%  for i in search %}
+		<tr>
+		<td><a href="#">{{ i.table_name }}</a></td>
+		<td>{{ i.booking_date }}</td>
+		<td>{{ i.class_of_booking }}</td>
+		</tr>
+	{% endfor %}
+		</table>	
+		</div>
+
+{% else %}		
+		{% bootstrap_alert 'Table Not Found' %}
+{% endif %}		

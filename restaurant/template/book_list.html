@@ -6,6 +6,14 @@
 {% block content %}
 
 <div class="container">
+
+<form action="{% url 'search' %}" method="post" class="form-horizontal" role='form'>
+	{% csrf_token %}
+	{% bootstrap_form form layout='inline' %}
+	{% buttons submit="SEARCH" layout='horizontal' %}
+	{% endbuttons %}
+</form>
+
 <table class="table">	
 	<tr>
 		<th>TABLENAME</th>

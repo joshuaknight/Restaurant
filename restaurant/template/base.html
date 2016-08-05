@@ -1,7 +1,11 @@
 <html>
 <head>
+
 	<title>{% block title %}{% endblock %}</title>
 	{% load staticfiles %}
+	 <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/bootstrap/3.1.1/css/bootstrap-theme.min.css" rel="stylesheet">
+    <link href="//netdna.bootstrapcdn.com/font-awesome/4.1.0/css/font-awesome.min.css" rel="stylesheet">
 	<style>
 	.doc
 	{
@@ -19,16 +23,17 @@
 		
 	}
 
-</style>	
+	</style>	
 	{% load bootstrap3 %}
 	{% bootstrap_css %}
 	{% bootstrap_javascript %}
 	{% block header %}
 	<div class="container">
 	<div class="doc">
-	<center><h1 class="rest">My Restaurant</h1>
+	<center><h1 class="rest">
+	<a href="{% url 'home' %}">My Restaurant</a></h1>
 	{% if not user.is_active %}
-	<center><h3><a href="{% url 'login' %}">Login</a></h3></center>
+	<center><h3><a href="{% url 'login' %}">Login</a> <a href="{% url 'register' %}">SignUp</a></h3></center>
 	{% endif %}
 	{% if user.is_active %}
 	<center><h3>Welcome {{user}} 	
@@ -38,11 +43,14 @@
 	</div>
 	</div>
 	{% endblock %}
+
 </head>
 <body>
 <br />
 	
 {% block content %}
+	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, post-check=0, pre-check=0" /> 
+	<meta http-equiv="Pragma" content="no-cache" />
 	<div class="navbar navbar-custom" role="navigation">
   	<div class="container">
     <div class="navbar-header">

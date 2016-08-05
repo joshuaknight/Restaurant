@@ -1,0 +1,28 @@
+{% include "base.html" %}
+{% load bootstrap3 %}
+
+{% block content %}
+{% if search %}
+<div class="container">
+<h4>You Searched For {{q}}</h4>
+<table class="table">	
+	<tr>
+		<th>RecepieName</th>
+		<th>EmailID</th>
+		<th>Date</th>
+	</tr>		
+	{%  for i in search %}
+		<tr>
+		<td><a href="#">{{ i.recepie_name }}</a></td>
+		<td>{{ i.emailid }}</td>
+		<td>{{ i.date }}</td>
+		</tr>
+		{% endfor %}
+		</table>	
+</div>
+
+{% else %}		
+	{% bootstrap_alert 'Table Not Found' %}
+{% endif %}		
+
+{% endblock %}

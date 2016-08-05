@@ -1,3 +1,4 @@
+from django.contrib.auth.models import AnonymousUser
 from django.contrib.auth.models import User
 from django.utils import timezone
 from django.shortcuts import render
@@ -12,8 +13,10 @@ from django.core.urlresolvers import reverse
 from django.contrib.gis.geoip import GeoIP
 from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.forms import UserCreationForm
+from django.views.decorators.cache import cache_control
+from django.core import cache 
+
 	
-login_required
 class home(TemplateView):
 	template_name = 'base.html'
 	def get_context_data(self,**kwargs):
@@ -26,6 +29,7 @@ class home(TemplateView):
 class Form(home,FormView):
 	template_name  = 'form.html'
 	form_class = OrderForm
+
 	def get_context_data(self,**kwargs):
 		context = super(Form, self).get_context_data(**kwargs)
 		context['key'] = 'ORDER'
@@ -116,9 +120,11 @@ class Order_Table(Form,FormView):
 
 class about(home,TemplateView):
 	template_name = 'about_us.html'		
+
 @login_required()
 def render_recepie(request):
     recepie_list = recepie.objects.all().order_by('-id')
+    form = searchrecepieform
     paginator = Paginator(recepie_list,4) 
     try:
     	page = request.GET.get('page')
@@ -128,15 +134,17 @@ def render_recepie(request):
     except EmptyPage:
         recepie_all = paginator.page(paginator.num_pages)
     return render(request, 'recepie_list.html', {'all': recepie_all,
+    		                                     'form':form,
     											  'key1':'RecepieName',
     											  'key2':'EmailID',
     											  'key3':'Date',
     											  'time': timezone.now()})
 
-
+@login_required()
 def render_table(request):
 	book_list = order_table.objects.all().order_by('-id')
 	paginator = Paginator(book_list,2) 
+	form = searchtableform
 	try:
 		page = request.GET.get('page')
 	   	book = paginator.page(page)
@@ -144,23 +152,44 @@ def render_table(request):
 	    book = paginator.page(1)
 	except EmptyPage:
 	    book = paginator.page(paginator.num_pages)
-	return render(request, 'book_list.html', {'all': book,
+	return render(request, 'book_list.html', {'all': book,	
+										      'form' : form,		  
 											  'time' : timezone.now()})
 
+def book_search(request):
+	book_list = ''
+	q = ''
+	if request.method == 'POST':
+		if request.POST['search_table']:
+			q = request.POST['search_table']
+			book_list = order_table.objects.filter(table_name__icontains = q)
+	return render(request,'search.html',{
+										 'q' : q,
+		                                 'search':book_list,})		
+
+def recepie_search(request):
+	recepie_list = ''
+	q = ''
+	if request.method == 'POST':
+		if request.POST['search_recepie']:
+			q = request.POST['search_recepie']
+			recepie_list = recepie.objects.filter(recepie_name__icontains = q)
+	return render(request,'new_recepie.html',{
+										 'q' : q,
+		                                 'search':recepie_list,})				                                 	
+
 def render_order(request):
-	order_list = OrderSpecial.objects.all().order_by('-id')
+	order_list = []
+	order_list.append(OrderSpecial.objects.all().order_by('-id'))
+
 	if order_list:
 		return render(request, 'order_list.html', {'i': order_list[0],
 												'time' : timezone.now()})
-	else:
-		message = "Click Here to Order"
-		return render(request, 'order_list.html', {'i': order_list,
-												   'order_message' : message,
-												   	'time' : timezone.now()})				
+			
 
 
 def delete(request):
-	order = OrderSpecial.objects.all().order_by('-id')
+	order = OrderSpecial.objects.filter()[0]
 	order.delete()
 	return HttpResponseRedirect('/order/current')
 
@@ -169,7 +198,7 @@ def delete(request):
 class Login(FormView):
 	template_name = 'login.html'
 	form_class = LoginForm
-
+	
 	def form_valid(self,form):
 		username = self.request.POST['username']
 		password = self.request.POST['password']
@@ -180,7 +209,7 @@ class Login(FormView):
 			user.backend = 'django.contrib.auth.backends.ModelBackend'
 			login(self.request,user)
    			return super(Login,self).form_valid(form)		
-
+   	
 	def get_context_data(self,**kwargs):
 		context = super(Login, self).get_context_data(**kwargs)
 		context['user'] = self.request.user
@@ -198,21 +227,20 @@ class Login(FormView):
    		profile.save()
 
 	def get_success_url(self):
-		username = self.request.POST['username']
 		return reverse('home')
 
 class signup(FormView):
 	template_name = 'login.html'
 	form_class = SignUpForm
 
-
+	
 	def get_context_data(self,**kwargs):
 		context = super(signup, self).get_context_data(**kwargs)
 		context['user'] = self.request.user
 		context['key'] = 'REGISTER'
 		context['time'] = timezone.now()
 		return context
-
+	
 	def form_valid(self,form):
 		msg = []
 		if self.request.POST['password'] != self.request.POST['confirm_password']:
@@ -235,10 +263,11 @@ class signup(FormView):
 
 def logout_(request):	
 	logout(request)
+
 	message= "You are Successfully Logged Out"
 	time = timezone.now()
+	request.session.flush()
+ 	if hasattr(request, 'user'):
+ 		request.user = AnonymousUser()
 	return render(request,'base.html',{'message' : message,'time':time})
-
-
-
 

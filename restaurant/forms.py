@@ -83,3 +83,9 @@ class SignUpForm(ModelForm):
 			'password' : forms.PasswordInput(),
 			'confirm_password' : forms.PasswordInput()
 		}
+
+class searchtableform(forms.Form):
+	search_table = forms.CharField(max_length = 10)
+
+class searchrecepieform(forms.Form):
+	search_recepie = forms.CharField(max_length = 10)
