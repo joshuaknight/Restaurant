@@ -5,7 +5,7 @@ from django.shortcuts import render
 from django.http import *
 from django.core.paginator import *
 from django.core.exceptions import ValidationError
-from django.forms import formset_factory
+from django.forms import formset_factory,modelformset_factory
 from django.contrib.auth.decorators import login_required
 from django.views.generic import *
 from .forms import *
@@ -15,8 +15,14 @@ from django.contrib.auth import authenticate,login,logout
 from django.contrib.auth.forms import UserCreationForm
 from django.views.decorators.cache import cache_control
 from django.core import cache 
+from django.core.mail import send_mail
+from .settings import *
+import sqlite3 
+import re 
+from django.db import IntegrityError
+from django.views.decorators.cache import *
+from django.forms.utils import ErrorList
 
-	
 class home(TemplateView):
 	template_name = 'base.html'
 	def get_context_data(self,**kwargs):
@@ -86,24 +92,39 @@ class add_recepie(Form,FormView):
 	def get_success_url(self):
 		return reverse('render_recepie')
 
-class contact(Form,FormView):
+class contact(FormView):
 	template_name = 'form.html'
 	form_class = ContactForm
-	#@login_required('/accounts/login')
+
 	def get_context_data(self,**kwargs):
 		context = super(contact, self).get_context_data(**kwargs)
 		context['key'] = 'SEND'
 		return context
 
-	def get_success_url(self):
+	def form_valid(self,form):
+		name = self.request.POST['name']
+		email = self.request.POST['email']
+		query = self.request.POST['query']
+		message = """Hello %s and Welcome,Please Feel Free to reply to this mail
+					Your Query is Processed and will be responded with the solution
+					in the next working hours Thank You
+
+					This is Your Following Query 
+
+					%s 
+					Thank You Regards 
+						Owner"""%(name,query)
+		mymail = EMAIL_HOST_USER
+		send_mail(name,message,mymail,[email],fail_silently = False)
+		return super(contact,self).form_valid(form)
+
+	def get_success_url(self):		
 		return reverse('contact_send')
 
-class contact_send(TemplateView):
-	template_name = 'base.html'
-	def get_context_data(self,**kwargs):
-		context = super(contact_send, self).get_context_data(**kwargs)
-		context['message'] = "Please Wait We Will Contact You ASAP Regarding Your Query"
-		return context	
+def contact_send(request):
+	message = "Please Wait We Will Contact You ASAP Regarding Your Query"
+	time = timezone.now()
+	return render(request,'base.html',{'message':message,'time':time})
 
 	
 class Order_Table(Form,FormView):
@@ -198,18 +219,7 @@ def delete(request):
 class Login(FormView):
 	template_name = 'login.html'
 	form_class = LoginForm
-	
-	def form_valid(self,form):
-		username = self.request.POST['username']
-		password = self.request.POST['password']
-		user = authenticate(username = username,password=password)
-   		if user is None:
-   			raise ValidationError('Password and Username Doesnt Match')
-		if user:   			
-			user.backend = 'django.contrib.auth.backends.ModelBackend'
-			login(self.request,user)
-   			return super(Login,self).form_valid(form)		
-   	
+
 	def get_context_data(self,**kwargs):
 		context = super(Login, self).get_context_data(**kwargs)
 		context['user'] = self.request.user
@@ -217,15 +227,18 @@ class Login(FormView):
 		context['time'] = timezone.now()
 		return context
 
-	def save_profile(backend, user, response, *args, **kwargs):
-		profile = user.get_profile()
-		if profile is None:
-			profile = Profile(user_id=user.id)
-		profile.gender = response.get('gender')
-  		profile.link = response.get('link')
-		profile.timezone = response.get('timezone')
-   		profile.save()
-
+	
+	def form_valid(self,form):
+		username = self.request.POST['username']
+		password = self.request.POST['password']
+		user = authenticate(username = username,password=password)
+		if user:   			
+			user.backend = 'django.contrib.auth.backends.ModelBackend'
+			login(self.request,user)
+   			return super(Login,self).form_valid(form)		
+		if user is None:
+			raise ValidationError('Username and Password doesnt match')		
+   		
 	def get_success_url(self):
 		return reverse('home')
 
@@ -242,28 +255,32 @@ class signup(FormView):
 		return context
 	
 	def form_valid(self,form):
-		msg = []
-		if self.request.POST['password'] != self.request.POST['confirm_password']:
-			raise ValidationError('Password Doesnt Match')			
 		username = self.request.POST['username']	
 		password = self.request.POST['password']
-		email = self.request.POST['emailid']		
+		email = self.request.POST['emailid']
+		date = self.request.POST['date']		
+		emailcheck = User.objects.filter(email=email).exists()
 		user = authenticate(username = username,password = password)
-		if user is None:
+		if user is None and not emailcheck:
 			new_user = User.objects.create_user(username,email,password)
 			new_user.backend = 'django.contrib.auth.backends.ModelBackend'
+			query = """Hi %s Welcome To this Restaurant Hope Your have a Good Time
+					   and please Make Sure to Click the activation Link Below To 
+					   activate Your Account"""%username				
+			mymail = EMAIL_HOST_USER
+			send_mail(username,query,mymail,[email],fail_silently=False)
 			login(self.request,new_user)
-			msg.append('Successfully Logged In')
+			message_login = 'Successfully Logged In'
 			return super(signup,self).form_valid(form)
-		if user is not None:
-			raise ValidationError("User Already Exsist")			
-
+		else: 
+			raise ValidationError("User already Exist")
+			return super(signup,self).form_valid(form)
+		
 	def get_success_url(self):
 		return reverse('home')			
 
 def logout_(request):	
 	logout(request)
-
 	message= "You are Successfully Logged Out"
 	time = timezone.now()
 	request.session.flush()
@@ -271,3 +288,54 @@ def logout_(request):
  		request.user = AnonymousUser()
 	return render(request,'base.html',{'message' : message,'time':time})
 
+def activate(request):
+	id=int(request.GET.get('id'))
+	user = User.objects.get(id=id)
+	user.is_active=True
+	user.save()
+	return render(request,'activation.html')
+
+class user_view(TemplateView):
+	template_name =  'user_view.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(user_view,self).get_context_data(**kwargs)
+		get_user = User.objects.get(username = self.request.user)
+		user = User.objects.get(username = self.request.user)
+		get_email = user.email 
+		context['time']  = timezone.now()
+		context['username'] = get_user
+		context['email'] = get_email
+		context['gender'] = None
+		return context 
+
+	def get_success_url(self):
+		return reverse('user_view')		
+
+@never_cache
+def edit_view(request):
+	username = User.objects.get(username = request.user)
+	if request.method == 'POST' and request.POST['q']:
+		new_username = request.POST['q']
+		regex = r"([a-zA-Z])"
+		try:	
+			if new_username:		
+				if re.search(regex,new_username):
+					length = len(str(new_username)) 
+					if length > 4 and length < 12:
+						user = User.objects.get(username = request.user)
+						user.username = new_username
+						user.save()
+						message_user = 'User Is Successfully Update'
+						return render(request,'edit.html',{'message_user':message_user})
+					else:
+						message_user = 'Username Should be Not Lesser than 4 or Greater Than 12'
+						return render(request,'edit.html',{'message_user':message_user})						
+				else:
+					message_user = 'Not a Valid Username'
+					return render(request,'edit.html',{'message_user':message_user})
+		except IntegrityError:
+			message_user = "%s Already Exsist"%new_username
+			return render(request,'edit.html',{'message_user':message_user})
+	return render(request,'edit.html',{'time' : timezone.now()})
+		

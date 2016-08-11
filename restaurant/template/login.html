@@ -1,26 +1,38 @@
 {% include "base.html" %}
 {% load bootstrap3 %}
+{% load static %}
+{% bootstrap_javascript %}
+{% bootstrap_css %}
+{{ form.media }}
+{% block header %}
+{{ form.media }}
+{% endblock %}
 {% block content %}
-	
+	{% if user.is_anonymous %}
   <div class="container">
-  {% bootstrap_form_errors form layout='horizontal' %}
-  <form class="form-horizontal" action="" method="post">
+  {% bootstrap_form_errors form layout='inline' %}
+  <form class="form-horizontal" enctype="multipart/form-data" action="" method="post" role="form">
   {% csrf_token %}
+  {{ form.managment_form }}
 	{% bootstrap_form form layout='horizontal' %}
   {% buttons submit=key layout='horizontal' %}
   {% endbuttons %}
   </form>
-
+  {% endif %}
 	<h2>
    {% if user and not user.is_anonymous %}
       <a href="{% url 'logout' %}">Logout</a>
    {% else %}
      <li>
-       <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Login with Google</a>
+       <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}" id="google-plus-button">Login with Google</a>
      </li>
    {% endif %}
  	</h2>
 
  	</div>
 
+{% endblock %}
+{% block footer %}
+<hr />
+  {{message_login}}
 {% endblock %}

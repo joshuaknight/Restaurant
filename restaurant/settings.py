@@ -33,8 +33,16 @@ INSTALLED_APPS = [
     'social.apps.django_app.default',
     'bootstrap3',
     'restaurant',
-    
-]
+    'bootstrap3_datetime',
+] 
+
+EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_HOST_USER = 'mynewrestaurant2016@gmail.com'
+EMAIL_HOST_PASSWORD = '####'
+EMAIL_PORT = 587
+EMAIL_USE_TLS = True
+  
 
 GEOIP_PATH = os.path.join(BASE_DIR, 'geoip')
 
@@ -55,9 +63,8 @@ TEMPLATES = [
 
     {   
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [BASE_DIR + '/restaurant/template',
-                 BASE_DIR + '/contact/template',],
-        #'APP_DIRS': True,
+        'DIRS': [BASE_DIR + '/restaurant/template',],
+        #'APP_DIRS': True,  
         'OPTIONS': {
 
             'context_processors': [
@@ -67,7 +74,6 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'social.apps.django_app.context_processors.backends',
                 'social.apps.django_app.context_processors.login_redirect',
-                'django.core.context_processors.request',
             ],
             'loaders': [
                 'django.template.loaders.filesystem.Loader',
@@ -115,6 +121,10 @@ AUTHENTICATION_BACKENDS = (
    'django.contrib.auth.backends.ModelBackend',
 )
 
+POPUP_FORMS = ('messages.forms.WriteMessageForm',
+               'talentbutton.forms.ApplyForm',
+               'talentbutton.forms.ConfirmForm',)
+
 SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.social_details',
     'social.pipeline.social_auth.social_uid',
@@ -123,6 +133,7 @@ SOCIAL_AUTH_PIPELINE = (
     'social.pipeline.social_auth.associate_user',
     'social.pipeline.social_auth.load_extra_data',
     'social.pipeline.user.user_details',
+    'restaurant.pipeline.save_profile',
 )
 
 SOCIAL_AUTH_DISCONNECT_PIPELINE = (
@@ -172,3 +183,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
+MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
+MEDIA_URL = '/media/'

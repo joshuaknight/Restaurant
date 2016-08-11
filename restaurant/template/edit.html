@@ -1,0 +1,18 @@
+{% include "base.html" %}
+{% load bootstrap3 %}
+{% block content %}
+{% if user.is_active %}
+
+<div class="container">
+<form action="" class="form-horizontal" method="post" >
+{% csrf_token %}
+	<h3>Username : <input type="text" name="q"></h3>
+	{% buttons submit='UPDATE' layout='horizontal' %}
+	{% endbuttons %}
+</form>
+	<br />
+	<h2 style="color:red;">{{message_user}}</h2>
+</div>
+
+{% endif %}
+{% endblock %}

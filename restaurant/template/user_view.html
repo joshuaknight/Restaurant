@@ -1,0 +1,22 @@
+{% include "base.html" %}
+{% load bootstrap3 %}
+{% load staticfiles %}
+
+{% block content %}
+
+{% if user.is_active %}
+<div class="container">
+	<h3>
+	<a href="{% url 'edit_view' %}">{% bootstrap_icon 'edit' %} Edit </a>
+	<br />
+	<br />
+	Username : {{username}}
+	<br /><br />	
+	Email : {{email}}
+	<br /><br />
+	AGE : {{date_of_birth}}
+	</h3>
+</div>
+	{% endif %}
+
+{% endblock %}

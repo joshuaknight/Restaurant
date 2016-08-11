@@ -1,8 +1,9 @@
 from django.db import models 
+from django.contrib.auth.models import User,UserManager
 import re
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
-
+from django.contrib.auth.models import AbstractBaseUser
 
 class IntegerRangeField(models.IntegerField):
     def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
@@ -151,6 +152,15 @@ class Signup(models.Model):
 	password = models.CharField(max_length=16,validators=[validate_pass])
 	confirm_password = models.CharField(max_length=16,validators=[validate_pass])
 	emailid = models.EmailField()
+	date = models.DateField()
 
+	def __unicode__(self):
+		return "%s"%self.username
 
+class Profile(models.Model):
+	email = models.EmailField(null=True)
+	firstname = models.CharField(max_length=30,null=True)
+	fullname = models.CharField(max_length=30,null=True)
+	lastname = models.CharField(max_length=30,null=True)
+	username = models.CharField(max_length=30,null=True)
 
