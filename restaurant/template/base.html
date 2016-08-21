@@ -1,7 +1,10 @@
 <html>
+	{% block title %}
+	<title>
+	My Restaurant
+	</title>
+	{% endblock %}
 <head>
-
-	<title>{% block title %}{% endblock %}</title>
 	{% load staticfiles %}
 	 
 	<style>
@@ -36,10 +39,27 @@
 
 	}
 	</style>	
+	<script type="text/javascript">	
+		setTimeout(function() {
+     	$.get("{% url 'user_view' %}") 
+		},5000);	
+		getalert function(){
+			alert('You are being redirected')
+		}
+
+		function popitup(url) {
+		    newwindow=window.open(url,'{{Login}}','height=700,width=700');
+		    if (window.focus) {newwindow.focus()}
+		    return false;
+		}
+	</script>
+			
 	{% load bootstrap3 %}
+	{% load thumbnail %}
 	{% bootstrap_css %}
 	{% bootstrap_javascript %}
 	{% block header %}
+	
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap.css">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.css">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
@@ -52,16 +72,20 @@
 	<center><h1 class="rest">
 	<a href="{% url 'home' %}">My Restaurant</a></h1>
 	{% if not user.is_active %}
-	<center><h3><a href="{% url 'login' %}">Login</a> <a href="{% url 'register' %}">SignUp</a></h3></center>
+	<center><h3>
+	<a href="{% url 'login' %}">Login</a> <a href="{% url 'register' %}">SignUp</a></h3></center>
 	{% endif %}
 	{% if user.is_active %}
 	<center>
 	<h3>Welcome
-	<a href="{% url 'user_view' %}">{{user}}</a>
-	<a href="{% url 'logout' %}">Logout</a>
+	<a href="{% url 'user_view' %}">{{user}}</a></h3>
+	{% thumbnail all "100x100" crop="center" as im %}
+	<a href="{% url 'edit_view' %}">
+	<img src= "/static/{{im}}" width="{{ im.width }}" height="{{ im.height }}" /></a>
+	{% endthumbnail %}
+	<h3><a href="{% url 'logout' %}">Logout</a>
 	</h3>
 	</center>
-
 	{% endif %}
 
 	Current Time : {{ time }}	
@@ -94,8 +118,8 @@
 	<li class="dropdown">
 	<a class="dropdown-toggle" data-toggle="dropdown"  href="{% url 'order' %}">{% bootstrap_button 'ORDER' %}<span class="caret"></span></a>
 	<ul class="dropdown-menu">
-	<li><a href="{% url 'current' %}">{% bootstrap_button 'CURRENT ORDER' %}</a></li>
 	<li><a href="{% url 'order' %}">{% bootstrap_button 'MAKE AN ORDER' %}</a></li>
+	<li><a href="{% url 'cart' %}">{% bootstrap_button 'ADDED TO CART' %}</a></li>
 	</ul>
 
 	
@@ -106,15 +130,17 @@
 	<li><a href="{% url 'table' %}">{% bootstrap_button 'BOOK TABLE' %}</a></li>
 	<li><a href="{% url 'render_table' %}">{% bootstrap_button 'BOOKED TABLES' %}</a></li>
 	</ul>
-
+	<li><a href="{% url 'comment' %}">{% bootstrap_button 'COMMENT' %}</a></li>		
 	<li><a href="{% url 'contact' %}">{% bootstrap_button 'CONTACT US' %}</a></li>		
 	<li><a href="{% url 'about' %}">{% bootstrap_button 'ABOUT US' %}</a></li>
 	 </ul>
   </div>
 </nav>
-{% endblock %}
+	{% endblock %}
+
 </body>
 {% block footer %}
 <center><h3>{{message_login}}</h3></center>
+<center><h3>{{message}}</h3></center>
 {% endblock %}
 </html>

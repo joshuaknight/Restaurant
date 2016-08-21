@@ -3,36 +3,85 @@
 {% load static %}
 {% bootstrap_javascript %}
 {% bootstrap_css %}
-{{ form.media }}
 {% block header %}
 {{ form.media }}
+<style type="text/css">
+  .modal-content{
+  }
+  .modal-title {
+    color: green;
+    text-align:center;
+  }
+  .modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+
+  pointer-events: none;
+  opacity: 0;
+
+  will-change: transform, opacity;
+}
+  .modal.visible {
+  pointer-events: auto;
+  opacity: 1;
+}
+  .element{
+    fill:transparent;
+  }
+  .modal-dialog{
+    fill:transparent;
+  }
+  @media screen and (min-width: 768px) {
+    .modal-dialog {
+        right: auto;
+        left:auto;
+        width: auto;
+    }
+}
+</style>
+
 {% endblock %}
 {% block content %}
-	{% if user.is_anonymous %}
-  <div class="container">
+<div class="modal-dialog modal-sm"> 
+<div class="modal-content"> 
+<div class="modal-header">
+
+<a class="close" data-dismiss="modal" aria-hidden="true" href="{% url 'home' %}">
+{% bootstrap_icon 'remove' %}
+</a> 
+
+<h4 class="modal-title" id="myModalLabel">User {{header}}</h4>
+
+</div>
+  <div class="modal-body">
+  {% if user.is_anonymous %}
   {% bootstrap_form_errors form layout='inline' %}
   <form class="form-horizontal" enctype="multipart/form-data" action="" method="post" role="form">
   {% csrf_token %}
   {{ form.managment_form }}
-	{% bootstrap_form form layout='horizontal' %}
-  {% buttons submit=key layout='horizontal' %}
+  {% bootstrap_form form layout='horizontal' %}
+  <div class="modal-footer"> 
+  <center>
+  {% buttons submit=key layout='form-horizontal' %}
   {% endbuttons %}
-  </form>
-  {% endif %}
-	<h2>
+  <a href="/" id="google-plus-button" 
+    onclick="return popitup('{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}')">
+  {% buttons submit='Login with Google' %} {% endbuttons %}</a>
+  </center>
+   {% endif %}
    {% if user and not user.is_anonymous %}
       <a href="{% url 'logout' %}">Logout</a>
-   {% else %}
-     <li>
-       <a href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}" id="google-plus-button">Login with Google</a>
-     </li>
-   {% endif %}
- 	</h2>
-
- 	</div>
-
+   </h2></center>
+    {% endif %}
+  </div>   
+  </form>
+</div>    
+</div>
+</div>
 {% endblock %}
-{% block footer %}
-<hr />
-  {{message_login}}
-{% endblock %}
+
+
+

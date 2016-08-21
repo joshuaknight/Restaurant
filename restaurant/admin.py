@@ -1,12 +1,17 @@
 from django.contrib import admin
 from .models import *
 
-admin.site.register(OrderSpecial)
-admin.site.register(Payment_Process)
-admin.site.register(recepie)
-admin.site.register(Contact_all)
-admin.site.register(order_table)
-admin.site.register(Mode)
+model_list = [OrderSpecial,
+				Payment_Process,
+				recepie,
+				Contact_all,
+				order_table,
+				Mode,
+				Login,
+				Signup,
+				Profile,
+				Comment,
+				added_user,]
 
-
-
+for i in model_list:				
+	admin.site.register(i)

@@ -6,7 +6,7 @@
 
 {% block content %}
 	{% bootstrap_form_errors form %}
-	<form role="form" action="" method="post" class="form-horizontal">
+	<form role="form" action="" method="post" class="form-horizontal" enctype="multipart/form-data">
 		{% csrf_token %}
 		<div class="container">
 			{{ form.managment_form }}

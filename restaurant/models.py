@@ -4,6 +4,9 @@ import re
 from django.core.exceptions import ValidationError
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import AbstractBaseUser
+import datetime
+from time import time 
+
 
 class IntegerRangeField(models.IntegerField):
     def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
@@ -75,7 +78,11 @@ number_of_people = {
 	(1,'1'),(2,'2'),(3,'3-5'),(4,'5-10'),(5,'More Than 10')
 }
 class_of_booking = {
-	(1,'Business'),(2,'Couples'),(3,'Family'),(4,'Friends'),(5,'Party')
+	('Business','Business'),
+	('Couples','Couples'),
+	('Family','Family'),
+	('Friends','Friends'),
+	('Party','Party')
 }
 
 Mode_Choice = {(1,'CASH ON DELIVERY'),
@@ -93,15 +100,19 @@ s = {
 
 Num = sorted(s, key=lambda x: x[1])
 
+def get_upload_file_name(instance, filename):
+	return "uploaded_files/%s_%s"%(str(time()).replace('.','_'),filename)	
+
 class OrderSpecial(models.Model):
 	Quantity = models.IntegerField()
 	Select = models.CharField(max_length = 100,validators=[validate_recepie])
 	Flavour = models.CharField(max_length = 100,validators=[validate_recepie])
 	Toppings = models.CharField(max_length=100,validators=[validate_recepie])
 	Describe = models.TextField(max_length=100,validators = [validate_describe])
+	photo = models.ImageField(upload_to = 'order_pics/')
 	
 	def __unicode__(self):
-		return "%s"%(self.Select)
+		return "%s %s"%(self.photo)
 
 class Payment_Process(models.Model):
 	card_number = IntegerRangeField(min_value=15,max_value=16)
@@ -153,9 +164,10 @@ class Signup(models.Model):
 	confirm_password = models.CharField(max_length=16,validators=[validate_pass])
 	emailid = models.EmailField()
 	date = models.DateField()
-
+	photo = models.ImageField(upload_to = get_upload_file_name,blank = True)
+	
 	def __unicode__(self):
-		return "%s"%self.username
+		return "%s %s"%(self.username,self.photo)
 
 class Profile(models.Model):
 	email = models.EmailField(null=True)
@@ -163,4 +175,32 @@ class Profile(models.Model):
 	fullname = models.CharField(max_length=30,null=True)
 	lastname = models.CharField(max_length=30,null=True)
 	username = models.CharField(max_length=30,null=True)
+
+class Comment(models.Model):
+	name = models.CharField(max_length=30,validators=[validate_name])
+	email = models.EmailField(blank = True)
+	comment = models.TextField(max_length=250)
+	date = models.DateField()
+	photo = models.ImageField(upload_to = 'get_upload_file_name',blank = True)
+
+	def save(self,*args,**kwargs):
+		today = datetime.datetime.today()
+		avail_user = Signup.objects.filter(username = self.name).exists()
+		if avail_user:
+			get_user = Signup.objects.get(username = self.name)
+			self.photo = get_user.photo			
+		self.date = '%d-%d-%d'%(today.year,today.month,today.day)		
+		super(Comment,self).save(*args,**kwargs)
+	
+	
+	
+	#def save(self, *args, **kwargs):
+	#	if self.photo:
+	#		small = rescale_image(self.photo,width=100,height=100)
+	#		self.image_small = SimpleUploadedFile(name,small_pic)			
+	#	super(Signup, self).save(*args, **kwargs)		
+
+class added_user(models.Model):
+	order_name = models.CharField(max_length=100)
+	quantity = IntegerRangeField()
 

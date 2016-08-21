@@ -1,22 +1,30 @@
 {% include "base.html" %}
 {% load bootstrap3 %}
 {% load staticfiles %}
-
+{% load thumbnail %}
 {% block content %}
 
 {% if user.is_active %}
 <div class="container">
 	<h3>
-	<a href="{% url 'edit_view' %}">{% bootstrap_icon 'edit' %} Edit </a>
+	<a href="{% url 'edit_view' %}">{% bootstrap_icon 'edit' %}Edit Profile</a>
 	<br />
 	<br />
-	Username : {{username}}
+	Username : {{username}} 
 	<br /><br />	
 	Email : {{email}}
 	<br /><br />
-	AGE : {{date_of_birth}}
+	AGE : {{age}}
+	<br /><br />
+	{% if photo %}
+	{% thumbnail photo "100x100" crop="center" as im %}
+	<img src= "/static/{{im}}" width="{{ im.width }}" height="{{ im.height }}" />
+	{% endthumbnail %}
+	{% else %}
+		Click Here to Update Your Profile Picture
+	{% endif %}
 	</h3>
 </div>
 	{% endif %}
 
-{% endblock %}
+{% endblock %}-

@@ -1,13 +1,20 @@
 {% include "base.html" %}
 {% load bootstrap3 %}
+{% load thumbnail %}
+{% block header %}
+
+{% endblock %}
 {% block content %}
 {% if user.is_active %}
 
 <div class="container">
-<form action="" class="form-horizontal" method="post" >
-{% csrf_token %}
-	<h3>Username : <input type="text" name="q"></h3>
-	{% buttons submit='UPDATE' layout='horizontal' %}
+{% bootstrap_formset_errors form %}
+<form action="" class="form-horizontal" method="post" enctype="multipart/form-data">
+	{% csrf_token %}
+	{{ form.managment_Form }}
+	{{ form.media 	}}
+	{% bootstrap_formset form %}
+	{% buttons submit='UPDATE' layout='horizontal' link='setTimeout();' %}
 	{% endbuttons %}
 </form>
 	<br />
@@ -15,4 +22,5 @@
 </div>
 
 {% endif %}
+
 {% endblock %}

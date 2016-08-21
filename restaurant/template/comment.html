@@ -1,0 +1,68 @@
+{% include "base.html" %}
+{% load static %}
+{% load bootstrap3 %}
+{% load thumbnail %}
+{% block header %}
+	<style type="text/css">
+		.photo{
+			width:70px;
+			height:70px;
+		}
+		.table{			
+			box-sizing:10px;
+		}
+	</style>
+{% endblock %}
+
+{% block content %}
+	{% if page %}	
+		
+	<div class="container">
+	<div class="row">
+	<div class="col-sm-12">
+	<h3>Comment Section</h3>
+	</div><!-- /col-sm-12 -->
+	</div><!-- /row -->	
+	{% for i in page %}
+	<div class="row">
+	<div class="col-sm-1">	
+	<div class="thumbnail">	
+	{% if i.photo %}
+	{% thumbnail i.photo "100x100" crop="center" as im %}
+	<img src= "/static/{{im}}" class="photo" />
+	
+	{% endthumbnail %}
+	{% else %}
+	<img class="photo" src="https://ssl.gstatic.com/accounts/ui/avatar_2x.png">
+	{% endif %}
+	</div><!-- /thumbnail -->
+	</div><!-- /col-sm-1 -->
+	<div class="col-sm-5">
+	<div class="panel panel-default">
+	<div class="panel-heading">
+	<strong>{{ i.name }}</strong> <span class="text-muted" >commented on {{ i.date }}</span>
+	</div>
+	<div class="panel-body">
+		{{ i.comment }}
+	</div><!-- /panel-body -->
+	</div><!-- /panel panel-default -->
+	</div><!-- /col-sm-5 -->	
+	</div>	
+	{% endfor %}
+	{% bootstrap_pagination page %}
+	
+
+	{% else %}
+	<h4>No Comments Yet! Add a Comment</h4>		
+	{% endif %}		
+	
+	{% bootstrap_form_errors form %}		
+	<form action="" class="form-horizontal" role="form" method="post"> 
+	{% csrf_token %}
+		{{form.managment_form}}
+		{% bootstrap_form form layout='horizontal' %}
+		{% buttons submit='ADD COMMENT' layout='horizontal' %}
+		{% endbuttons %}
+	</form>
+	</div><!-- /container -->
+{% endblock %}

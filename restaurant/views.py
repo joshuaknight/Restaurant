@@ -1,5 +1,4 @@
-from django.contrib.auth.models import AnonymousUser
-from django.contrib.auth.models import User
+from django.contrib.auth.models import User,AnonymousUser
 from django.utils import timezone
 from django.shortcuts import render
 from django.http import *
@@ -24,29 +23,72 @@ from django.views.decorators.cache import *
 from django.forms.utils import ErrorList
 
 class home(TemplateView):
-	template_name = 'base.html'
+	template_name = 'home.html'
+
 	def get_context_data(self,**kwargs):
 		context = super(home, self).get_context_data(**kwargs)
+		avail = Signup.objects.filter(username = self.request.user).exists()
+		if avail:
+			get_pic = Signup.objects.get(username = self.request.user)
+			context['all'] =  get_pic.photo
 		context['time'] = timezone.now()
-		context['user'] = self.request.user
+		context['user'] = self.request.user		
 		return context
 
 
 class Form(home,FormView):
 	template_name  = 'form.html'
-	form_class = OrderForm
+
 
 	def get_context_data(self,**kwargs):
 		context = super(Form, self).get_context_data(**kwargs)
 		context['key'] = 'ORDER'
 		return context
 
-	def get_success_url(self):
-		return reverse('mode_of_pay')
-
 	def form_valid(self,form):
 		form.save()
 		return super(Form,self).form_valid(form)
+
+
+
+class new_order(home,TemplateView):
+	template_name = 'order.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(new_order,self).get_context_data(**kwargs)
+		context['order'] = OrderSpecial.objects.all()
+		return context
+
+
+
+class create_order(Form,FormView):
+	template_name = 'form.html'
+	form_class = OrderForm
+
+	def get_context_data(self, **kwargs):
+		context = super(create_order, self).get_context_data(**kwargs)
+		context['time'] = timezone.now()
+		context['key'] = 'ADD ORDER'
+		return context
+
+	def get_success_url(self):
+		return reverse('order')
+
+def delete_order(request):
+	s = OrderSpecial.objects.filter()[0]
+	s.delete()
+	return HttpResponseRedirect('/order/')
+
+
+def add_order(request):
+	pass
+
+class cart(ListView):
+	template_name = 'cart.html'
+	model = added_user
+	context_objectname = 'cart_list'
+
+
 
 class mode_of_pay(Form,FormView):
 	template_name = 'form.html'
@@ -92,7 +134,7 @@ class add_recepie(Form,FormView):
 	def get_success_url(self):
 		return reverse('render_recepie')
 
-class contact(FormView):
+class contact(home,FormView):
 	template_name = 'form.html'
 	form_class = ContactForm
 
@@ -122,9 +164,13 @@ class contact(FormView):
 		return reverse('contact_send')
 
 def contact_send(request):
-	message = "Please Wait We Will Contact You ASAP Regarding Your Query"
+	get_pic = Signup.objects.all()
+	for i in get_pic:pass
+	response = HttpResponse()
+	get_name = response.get('name')
+	message = "Please Check Your Mail and Wait %s We Will Contact You ASAP Regarding Your Query"%get_name
 	time = timezone.now()
-	return render(request,'base.html',{'message':message,'time':time})
+	return render(request,'base.html',{'message':message,'time':time,'all' : i.photo})
 
 	
 class Order_Table(Form,FormView):
@@ -224,6 +270,7 @@ class Login(FormView):
 		context = super(Login, self).get_context_data(**kwargs)
 		context['user'] = self.request.user
 		context['key'] = 'LOGIN'
+		context['header'] = 'Login'
 		context['time'] = timezone.now()
 		return context
 
@@ -251,6 +298,7 @@ class signup(FormView):
 		context = super(signup, self).get_context_data(**kwargs)
 		context['user'] = self.request.user
 		context['key'] = 'REGISTER'
+		context['header'] = 'Signup'
 		context['time'] = timezone.now()
 		return context
 	
@@ -270,6 +318,7 @@ class signup(FormView):
 			mymail = EMAIL_HOST_USER
 			send_mail(username,query,mymail,[email],fail_silently=False)
 			login(self.request,new_user)
+			form.save()
 			message_login = 'Successfully Logged In'
 			return super(signup,self).form_valid(form)
 		else: 
@@ -295,6 +344,7 @@ def activate(request):
 	user.save()
 	return render(request,'activation.html')
 
+
 class user_view(TemplateView):
 	template_name =  'user_view.html'
 
@@ -303,10 +353,15 @@ class user_view(TemplateView):
 		get_user = User.objects.get(username = self.request.user)
 		user = User.objects.get(username = self.request.user)
 		get_email = user.email 
+		avail = Signup.objects.filter(username = self.request.user).exists()
+		if avail:
+			get_pic = Signup.objects.get(username = self.request.user)
+			context['photo'] =  get_pic.photo
+		get_date = Signup.objects.get(username = self.request.user)
+		context['age'] = get_date.date							
 		context['time']  = timezone.now()
 		context['username'] = get_user
-		context['email'] = get_email
-		context['gender'] = None
+		context['email'] = get_email		
 		return context 
 
 	def get_success_url(self):
@@ -314,28 +369,82 @@ class user_view(TemplateView):
 
 @never_cache
 def edit_view(request):
-	username = User.objects.get(username = request.user)
-	if request.method == 'POST' and request.POST['q']:
-		new_username = request.POST['q']
-		regex = r"([a-zA-Z])"
-		try:	
-			if new_username:		
-				if re.search(regex,new_username):
-					length = len(str(new_username)) 
-					if length > 4 and length < 12:
-						user = User.objects.get(username = request.user)
-						user.username = new_username
-						user.save()
-						message_user = 'User Is Successfully Update'
-						return render(request,'edit.html',{'message_user':message_user})
-					else:
-						message_user = 'Username Should be Not Lesser than 4 or Greater Than 12'
-						return render(request,'edit.html',{'message_user':message_user})						
+	username = Signup.objects.get(username = request.user)
+	get_form = modelformset_factory(Signup,fields = '__all__',
+				exclude=('password','confirm_password','photo',),max_num =1)
+	form = get_form(queryset=Signup.objects.filter(username = request.user))
+
+	if request.method == 'POST':
+		new_username = request.POST['form-0-username']
+		new_date = request.POST['form-0-date']
+		new_email = request.POST['form-0-emailid']
+		regex = r"([a-zA-Z])"			
+		if new_username or new_date:		
+			if re.search(regex,new_username):
+				length = len(str(new_username)) 
+				if length > 4 and length < 12:
+					user = User.objects.get(username = request.user)					
+					get_user = Signup.objects.get(username = request.user)
+					get_user.username = new_username			
+					get_user.emailid = new_email
+					get_user.date = new_date
+					user.username = new_username
+					user.email = new_email
+					user.save() 
+					get_user.save()
+					message_user = 'User Is Successfully Update'
+					return render(request,'edit.html',{'form':form,'message_user':message_user})
 				else:
-					message_user = 'Not a Valid Username'
-					return render(request,'edit.html',{'message_user':message_user})
-		except IntegrityError:
-			message_user = "%s Already Exsist"%new_username
-			return render(request,'edit.html',{'message_user':message_user})
-	return render(request,'edit.html',{'time' : timezone.now()})
-		
+					message_user = 'Username Should be Not Lesser than 4 or Greater Than 12'
+					return render(request,'edit.html',{'form':form,'message_user':message_user})						
+			else:
+				message_user = 'Not a Valid Username'
+				return render(request,'edit.html',{'form':form,'message_user':message_user})
+		else:	
+			message_user = "%s Already Exsist"%new_username			
+		return render(request,'edit.html',{'message_user':message_user})					
+	
+	return render(request,'edit.html',{'form':form,'time' : timezone.now()})
+
+
+def get_page(request):
+	comment_list = Comment.objects.all().order_by('-id')
+	paginator = Paginator(comment_list,4)
+	try:
+		page = request.GET.get('page')
+		get_page = paginator.page(page)	   		
+	except PageNotAnInteger:
+		get_page = paginator.page(1)
+	except EmptyPage:
+		get_page = paginator.page(paginator.num_pages)		
+	return get_page			    				
+
+
+class comment(FormView):
+	form_class = CommentForm
+	template_name = 'comment.html'
+
+	def get_context_data(self,**kwargs):
+		context = super(comment,self).get_context_data(** kwargs)		
+		context['page'] = get_page(self.request)
+		context['time'] = timezone.now()
+		context['user'] = self.request.user				
+		return context
+
+	def get_form_kwargs(self):
+		kwargs = super(comment,self).get_form_kwargs()		
+		kwargs['user'] = self.request.user
+		if kwargs['user'].is_anonymous():
+			kwargs['email'] = ''
+		else:			
+			user = User.objects.get(username = self.request.user)
+			kwargs['email'] = user.email
+		return kwargs	
+
+	def form_valid(self,form):
+		form.save()
+		return super(comment,self).form_valid(form)	
+
+	def get_success_url(self):
+		return reverse('comment')		
+

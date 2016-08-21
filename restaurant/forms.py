@@ -1,3 +1,4 @@
+import requests
 from django.forms import ModelForm 
 from .models import * 
 from django import forms 
@@ -6,6 +7,9 @@ from bootstrap3_datetime.widgets import *
 import datetime 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
+from django.utils import timezone
+from django.http import *
+from nltk import tokenize
 
 class OrderForm(ModelForm):
 	class Meta:
@@ -34,6 +38,10 @@ class RecepieForm(ModelForm):
 		model = recepie
 		fields = '__all__'		
 
+		widgets = {
+			'date' : DateTimePicker(options={"format": "YYYY-MM-DD","pickTime": False}),
+		}
+
 class ContactForm(ModelForm):
     class Meta:
         model = Contact_all
@@ -58,9 +66,10 @@ class Order_table_Form(ModelForm):
 		widgets = {
 			'class_of_booking' : forms.Select(choices = sorted_class_of_booking),
 			'number_of_people' : forms.Select(choices= sorted_number_of_people),
-			'is_it_a_special_occasion' : forms.Select(choices = sorted_special_occasion)
-
+			'is_it_a_special_occasion' : forms.Select(choices = sorted_special_occasion),
+			'booking_date' : DateTimePicker(options={"format": "YYYY-MM-DD","pickTime": False}),
 		}
+		initial = {'booking_date': 'hello'}
 
 class ModeForm(ModelForm):
 	class Meta:
@@ -133,3 +142,41 @@ class searchtableform(forms.Form):
 
 class searchrecepieform(forms.Form):
 	search_recepie = forms.CharField(max_length = 10)
+
+class CommentForm(ModelForm):
+	def __init__(self,user,email,*args, **kwargs):	
+		super(CommentForm, self).__init__(*args, **kwargs)	
+		self.user = user
+		if not user.is_anonymous():
+			self.email = email
+			self.fields['name'].initial = user
+			self.fields['email'].initial = email
+			fields = ['name','email']
+			for i in fields:
+				self.fields[i].widget.attrs['readonly'] = 'true'
+	
+	class Meta:
+		model = Comment
+		fields = '__all__'
+		exclude = ('date','photo')
+
+	def clean_comment(self):
+		comment = self.cleaned_data['comment']				
+		regex = r"([a-zA-Z])"
+		whitespace = r"([\S])"
+		length = 30
+		if (comment.__len__() <= length or not re.search(regex,comment) or not re.findall(whitespace,comment)):			
+    			raise ValidationError("Comment is Not Valid")    			
+		else:
+			return self.cleaned_data['comment']    			
+	
+	#def clean_date(self):    
+	#	instance = getattr(self, 'instance', None)        
+	#	if instance and instance.pk:            
+	#		return instance.date
+	#	else:            
+	#		return self.cleaned_data['date']
+#class picform(ModelForm):
+#	class Meta:
+#		model = pic
+#		fields = '__all__'			

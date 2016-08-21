@@ -13,6 +13,7 @@ SOCIAL_AUTH_GOOGLE_OAUTH2_KEY = '143763721687-q404ouqpvk5fcbns47lqja5gherpm073.a
 SOCIAL_AUTH_GOOGLE_OAUTH2_SECRET = 'gOxn4ncCeyv9xFOByzm6Nod2'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
+THUMBNAIL_DEBUG = True
 
 ALLOWED_HOSTS = []
 
@@ -34,12 +35,13 @@ INSTALLED_APPS = [
     'bootstrap3',
     'restaurant',
     'bootstrap3_datetime',
+    'sorl.thumbnail',
 ] 
 
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
 EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_HOST_USER = 'mynewrestaurant2016@gmail.com'
-EMAIL_HOST_PASSWORD = '####'
+EMAIL_HOST_PASSWORD = '###'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
   
@@ -183,6 +185,6 @@ STATICFILES_FINDERS = (
     'django.contrib.staticfiles.finders.AppDirectoriesFinder',
 #    'django.contrib.staticfiles.finders.DefaultStorageFinder',
 )
-MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+MEDIA_ROOT = BASE_DIR + '/restaurant/static'
 
-MEDIA_URL = '/media/'
+MEDIA_URL = ''
