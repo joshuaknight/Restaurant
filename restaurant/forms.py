@@ -4,6 +4,7 @@ from .models import *
 from django import forms 
 from django.utils.translation import ugettext_lazy as _
 from bootstrap3_datetime.widgets import *
+
 import datetime 
 from django.contrib.auth.models import User
 from django.contrib.auth import authenticate
@@ -34,21 +35,40 @@ class PaymentForm(ModelForm):
 		fields = '__all__'
 
 class RecepieForm(ModelForm):
+	def __init__(self,user,emailid,*args,**kwargs):
+		super(RecepieForm,self).__init__(*args,**kwargs)
+		self.emailid = emailid
+		self.fields['emailid'].initial = emailid 
+		if not user.is_anonymous():		
+			self.fields['emailid'].widget.attrs['readonly'] = 'true'
+
 	class Meta:
 		model = recepie
-		fields = '__all__'		
+		fields = '__all__'
+		exclude = ('date',)		
 
 		widgets = {
 			'date' : DateTimePicker(options={"format": "YYYY-MM-DD","pickTime": False}),
 		}
 
 class ContactForm(ModelForm):
-    class Meta:
-        model = Contact_all
-        fields = '__all__'
-        exclude = ('date',)
+	def __init__(self,name,email,*args,**kwargs):
+		super(ContactForm,self).__init__(*args,**kwargs)
+		self.name = name 
+		self.email = email 
+		if not name.is_anonymous():			
+			self.fields['name'].initial = name
+			self.fields['email'].initial = email
+			fields = ['name','email']
+			for i in fields:
+				self.fields[i].widget.attrs['readonly'] = 'true'
 
-        widgets = {
+	class Meta:
+		model = Contact_all
+		fields = '__all__'
+		exclude = ('date',)
+
+		widgets = {
         	'title': forms.Select(choices = TITLE_CHOICES),
         	}
        	help_texts = {
@@ -57,6 +77,8 @@ class ContactForm(ModelForm):
        		'name'  : _('Name should be valid'),
        		'email' : _('The way to contact you back'),
        	}
+
+	
 
 class Order_table_Form(ModelForm):
 	class Meta:
@@ -158,8 +180,8 @@ class CommentForm(ModelForm):
 	class Meta:
 		model = Comment
 		fields = '__all__'
-		exclude = ('date','photo')
-
+		exclude = ('date','photo','parent')
+		
 	def clean_comment(self):
 		comment = self.cleaned_data['comment']				
 		regex = r"([a-zA-Z])"

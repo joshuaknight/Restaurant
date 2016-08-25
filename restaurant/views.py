@@ -22,6 +22,7 @@ from django.db import IntegrityError
 from django.views.decorators.cache import *
 from django.forms.utils import ErrorList
 
+
 class home(TemplateView):
 	template_name = 'home.html'
 
@@ -32,7 +33,9 @@ class home(TemplateView):
 			get_pic = Signup.objects.get(username = self.request.user)
 			context['all'] =  get_pic.photo
 		context['time'] = timezone.now()
+		context['form'] = LoginForm
 		context['user'] = self.request.user		
+		context['quantity'] = 2
 		return context
 
 
@@ -50,43 +53,95 @@ class Form(home,FormView):
 		return super(Form,self).form_valid(form)
 
 
-
-class new_order(home,TemplateView):
-	template_name = 'order.html'
-
-	def get_context_data(self,**kwargs):
-		context = super(new_order,self).get_context_data(**kwargs)
-		context['order'] = OrderSpecial.objects.all()
-		return context
-
-
-
-class create_order(Form,FormView):
+class create_order(FormView):
 	template_name = 'form.html'
 	form_class = OrderForm
 
 	def get_context_data(self, **kwargs):
 		context = super(create_order, self).get_context_data(**kwargs)
 		context['time'] = timezone.now()
-		context['key'] = 'ADD ORDER'
+		context['key'] = 'ADD ORDER'	
 		return context
 
 	def get_success_url(self):
 		return reverse('order')
+	
+	def form_valid(self,form):
+		form.save()
+		return super(create_order,self).form_valid(form)
 
-def delete_order(request):
-	s = OrderSpecial.objects.filter()[0]
-	s.delete()
-	return HttpResponseRedirect('/order/')
+class new_order(home,TemplateView):
+	template_name = 'order.html'
 
+	def get_context_data(self,**kwargs):
+		context = super(new_order,self).get_context_data(**kwargs)
+		context['order'] = OrderSpecial.objects.all()		
+		return context
 
-def add_order(request):
-	pass
+def add_order(request,pk):
+	try: 
+	    obj = OrderSpecial.objects.get(id = pk)
+	    request.session['order_name'] = obj.Select
+	    request.session['quantity'] = obj.Quantity
+	    request.session['flavour'] = obj.Flavour
+	    return HttpResponseRedirect('/order')
+	except:
+		raise response.Http404	
+
+	return HttpResponseRedirect('/order')          
+
+        
+		 
 
 class cart(ListView):
 	template_name = 'cart.html'
-	model = added_user
-	context_objectname = 'cart_list'
+	context_object_name = 'cart_list'
+
+	def get_queryset(self):
+		try:			
+			order_name = self.request.session['order_name']
+			quantity = self.request.session['quantity']
+			flavour = self.request.session['flavour']
+			cart_list = {'order_name': order_name,
+						 'quantity' : quantity,
+						 'flavour' : flavour,
+							}		
+		except:
+			avail = False
+			return render(self.request,'cart.html',{'avail' : avail})										
+		
+		return cart_list 
+
+	def get_context_data(self,**kwargs):
+		context = super(cart, self).get_context_data(**kwargs)	
+		return context
+
+class render_order(ListView):
+	context_object_name = 'i'
+	template_name = 'order_list.html'
+
+	def get_queryset(self):
+		return OrderSpecial.objects.all().order_by('-id')
+
+	
+
+class order_delete(DeleteView):
+	model = OrderSpecial
+
+	def get_object_or_404(self):
+	    try:
+	        obj = OrderSpecial.objects.get(id=id)
+	    except:
+	        raise Http404
+	    if request.method == "POST":
+	        obj.delete()
+	        messages.success(request, "This has been deleted.")
+	        return HttpResponseRedirect('/order/current/')
+		return HttpResponseRedirect('/order/current/')        
+
+	def get_success_url(self):
+		return reverse('current')
+
 
 
 
@@ -123,18 +178,37 @@ class internet(home,TemplateView):
 		context['message'] = 'Internet Banking Is Down at the Momment Sorry for the Inconvenience !'
 		return context
 
-class add_recepie(Form,FormView):
+class add_recepie(FormView):
 	template_name = 'form.html'
 	form_class = RecepieForm
+	
 	def get_context_data(self,**kwargs):
 		context = super(add_recepie, self).get_context_data(**kwargs)
 		context['key'] = 'ADD RECEPIE'
 		return context
 
+	def get_form_kwargs(self):
+		kwargs = super(add_recepie,self).get_form_kwargs()
+		kwargs['user'] = self.request.user 	
+		user = self.request.user 
+		if not user.is_anonymous():
+			user = User.objects.get(username = self.request.user)
+			kwargs['emailid'] =  user.email 
+		else:
+			self.fields['emailid'] = ''			
+		return kwargs
+
+	def form_valid(self,form):
+		form.save()
+		return super(add_recepie,self).form_valid(form)
+
 	def get_success_url(self):
 		return reverse('render_recepie')
 
-class contact(home,FormView):
+class recepie_detail(DetailView):
+	pass 
+
+class contact(FormView):
 	template_name = 'form.html'
 	form_class = ContactForm
 
@@ -160,6 +234,17 @@ class contact(home,FormView):
 		send_mail(name,message,mymail,[email],fail_silently = False)
 		return super(contact,self).form_valid(form)
 
+	def get_form_kwargs(self):
+		kwargs = super(contact,self).get_form_kwargs()		
+		kwargs['name'] = self.request.user
+		if kwargs['name'].is_anonymous():
+			kwargs['email'] = ''
+		else:			
+			user = User.objects.get(username = self.request.user)
+			kwargs['email'] = user.email
+		return kwargs	
+
+
 	def get_success_url(self):		
 		return reverse('contact_send')
 
@@ -173,7 +258,7 @@ def contact_send(request):
 	return render(request,'base.html',{'message':message,'time':time,'all' : i.photo})
 
 	
-class Order_Table(Form,FormView):
+class Order_Table(FormView):
 	template_name = 'form.html'
 	form_class = Order_table_Form	
 
@@ -184,6 +269,10 @@ class Order_Table(Form,FormView):
 
 	def get_success_url(self):
 		return reverse('render_table')	
+	
+	def form_valid(self,form):
+		form.save()
+		return super(Order_Table,self).form_valid(form)		
 
 class about(home,TemplateView):
 	template_name = 'about_us.html'		
@@ -245,20 +334,6 @@ def recepie_search(request):
 										 'q' : q,
 		                                 'search':recepie_list,})				                                 	
 
-def render_order(request):
-	order_list = []
-	order_list.append(OrderSpecial.objects.all().order_by('-id'))
-
-	if order_list:
-		return render(request, 'order_list.html', {'i': order_list[0],
-												'time' : timezone.now()})
-			
-
-
-def delete(request):
-	order = OrderSpecial.objects.filter()[0]
-	order.delete()
-	return HttpResponseRedirect('/order/current')
 
 
 
@@ -288,6 +363,7 @@ class Login(FormView):
    		
 	def get_success_url(self):
 		return reverse('home')
+
 
 class signup(FormView):
 	template_name = 'login.html'
@@ -332,10 +408,9 @@ def logout_(request):
 	logout(request)
 	message= "You are Successfully Logged Out"
 	time = timezone.now()
-	request.session.flush()
  	if hasattr(request, 'user'):
  		request.user = AnonymousUser()
-	return render(request,'base.html',{'message' : message,'time':time})
+	return HttpResponseRedirect('/')
 
 def activate(request):
 	id=int(request.GET.get('id'))
@@ -447,4 +522,3 @@ class comment(FormView):
 
 	def get_success_url(self):
 		return reverse('comment')		
-

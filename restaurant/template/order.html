@@ -23,12 +23,9 @@
 		{{ i.Describe }}
 	</div>
 	<div class="panel-footer">
-	<form class="form-horizontal" action="" method="post">
-	{% csrf_token %}
-	<a href="{% url 'add_order' %}">
-	{% buttons submit='ADD' layout='horizontal' 'btn btn-primary' %}
-	{% endbuttons %}
-	</a>
+	<form id = {{i.Select}} class="form-horizontal" action="{% url 'add_order' i.id %}" method="post" enctype="Multipart/form-data">
+	{% csrf_token %}   
+	{% buttons submit='ADD' layout='horizontal' 'btn btn-primary' %}{% endbuttons %}
 	</form>
 	</div>
 	</div>

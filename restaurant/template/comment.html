@@ -2,16 +2,7 @@
 {% load static %}
 {% load bootstrap3 %}
 {% load thumbnail %}
-{% block header %}
-	<style type="text/css">
-		.photo{
-			width:70px;
-			height:70px;
-		}
-		.table{			
-			box-sizing:10px;
-		}
-	</style>
+{% block header %}	
 {% endblock %}
 
 {% block content %}
@@ -43,7 +34,7 @@
 	<strong>{{ i.name }}</strong> <span class="text-muted" >commented on {{ i.date }}</span>
 	</div>
 	<div class="panel-body">
-		{{ i.comment }}
+		{{ i.comment_new }}
 	</div><!-- /panel-body -->
 	</div><!-- /panel panel-default -->
 	</div><!-- /col-sm-5 -->	
@@ -57,12 +48,12 @@
 	{% endif %}		
 	
 	{% bootstrap_form_errors form %}		
-	<form action="" class="form-horizontal" role="form" method="post"> 
+	<form id="form-custom" action="" class="form-horizontal" role="form" method="post" > 
 	{% csrf_token %}
 		{{form.managment_form}}
 		{% bootstrap_form form layout='horizontal' %}
 		{% buttons submit='ADD COMMENT' layout='horizontal' %}
 		{% endbuttons %}
 	</form>
-	</div><!-- /container -->
+	</div>
 {% endblock %}

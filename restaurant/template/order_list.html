@@ -22,7 +22,12 @@
 		<td>{{ i.Flavour }}</td>
 		<td>{{ i.Toppings }}</td>
 		<td>
-		<a href="{% url 'delete' %}">{% bootstrap_icon 'Remove' %}</a>
+		<form action="{% url 'order_delete' i.id %}" method="post">
+		{% csrf_token %}
+		<button type="submit">
+		{% bootstrap_icon 'Remove' %}
+		</button>
+		</form>
 		</td>
 		</tr>		
 		{% endfor %}

@@ -6,7 +6,9 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.contrib.auth.models import AbstractBaseUser
 import datetime
 from time import time 
-
+from markdown_deux import *
+from django.utils import timezone
+from django.utils.safestring import mark_safe
 
 class IntegerRangeField(models.IntegerField):
     def __init__(self, verbose_name=None, name=None, min_value=None, max_value=None, **kwargs):
@@ -131,6 +133,12 @@ class recepie(models.Model):
 	def __unicode__(self):
 		return "%s"%(self.recepie_name)
 
+
+	def save(self,*args,**kwargs):
+		self.date = timezone.now()
+		return super(recepie,self).save(*args,**kwargs)
+
+
 class Contact_all(models.Model):
 	name  = models.CharField(validators=[validate_name],max_length = 100) 
 	email = models.EmailField()
@@ -159,11 +167,13 @@ class Login(models.Model):
 	password = models.CharField(max_length=16)
 
 class Signup(models.Model):
+	firstname = models.CharField(max_length=10)
+	lastname = models.CharField(max_length= 10)
 	username = models.CharField(max_length=10) 
 	password = models.CharField(max_length=16,validators=[validate_pass])
 	confirm_password = models.CharField(max_length=16,validators=[validate_pass])
 	emailid = models.EmailField()
-	date = models.DateField()
+	date = models.DateField(null = True)
 	photo = models.ImageField(upload_to = get_upload_file_name,blank = True)
 	
 	def __unicode__(self):
@@ -179,8 +189,9 @@ class Profile(models.Model):
 class Comment(models.Model):
 	name = models.CharField(max_length=30,validators=[validate_name])
 	email = models.EmailField(blank = True)
-	comment = models.TextField(max_length=250)
+	comment_new = models.TextField(max_length=250)
 	date = models.DateField()
+	parent = models.ForeignKey('self',null = True)
 	photo = models.ImageField(upload_to = 'get_upload_file_name',blank = True)
 
 	def save(self,*args,**kwargs):
@@ -192,8 +203,20 @@ class Comment(models.Model):
 		self.date = '%d-%d-%d'%(today.year,today.month,today.day)		
 		super(Comment,self).save(*args,**kwargs)
 	
+	def get_markdown(self):
+		content = self.comment_new
+		markdown_text = markdown(content)
+		return mark_safe(markdown_text)	
 	
+	def children(self): #replies
+		return Comment.objects.filter(parent=self)
 	
+	@property
+	def is_parent(self):
+		if self.parent is not None:
+			return False
+		return True
+
 	#def save(self, *args, **kwargs):
 	#	if self.photo:
 	#		small = rescale_image(self.photo,width=100,height=100)
@@ -203,4 +226,4 @@ class Comment(models.Model):
 class added_user(models.Model):
 	order_name = models.CharField(max_length=100)
 	quantity = IntegerRangeField()
-
+	price = IntegerRangeField

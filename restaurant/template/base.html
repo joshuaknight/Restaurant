@@ -6,51 +6,12 @@
 	{% endblock %}
 <head>
 	{% load staticfiles %}
-	 
-	<style>
-	.doc
-	{
-		background-size:100%;
-		background-color:#33ff88;
-	}	
-	.container{
-		background-size:100%;
-		background-color:pink;
-		border-color:#3297e9;
-		border-style:solid;
-		border-width:2px;
-		color:#00b838; 
-	}
-	.newbox{
-		border:solid;
-		background:#33ff88;
-		border-color:#3297e9;
-		border-style:solid;
-		border-width:2px;
-	}
-
-	.navbar-default {
-		 background-color:#3297e9;
-		 border-color: #3297e9;
-		 color:pink;		
-		 padding-left:100px;		 
-	}
-	.dropdown-toggle{
-
-	}
-	</style>	
 	<script type="text/javascript">	
 		setTimeout(function() {
      	$.get("{% url 'user_view' %}") 
 		},5000);	
 		getalert function(){
 			alert('You are being redirected')
-		}
-
-		function popitup(url) {
-		    newwindow=window.open(url,'{{Login}}','height=700,width=700');
-		    if (window.focus) {newwindow.focus()}
-		    return false;
 		}
 	</script>
 			
@@ -64,46 +25,31 @@
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-theme.css">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 	<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.js">
+	<link rel="stylesheet" href="{% static '/static/css/mystyle.css' %}">
+	<script type="text/javascript" src="{% static '/static/js/hover.js'%}"></script>
 	<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.0/jquery.js"></script>
 	<script src="//netdna.bootstrapcdn.com/bootstrap/3.0.0/js/bootstrap.js"></script>
 	
-	<div class="newbox">
-	<div class="doc">
-	<center><h1 class="rest">
-	<a href="{% url 'home' %}">My Restaurant</a></h1>
-	{% if not user.is_active %}
-	<center><h3>
-	<a href="{% url 'login' %}">Login</a> <a href="{% url 'register' %}">SignUp</a></h3></center>
-	{% endif %}
-	{% if user.is_active %}
-	<center>
-	<h3>Welcome
-	<a href="{% url 'user_view' %}">{{user}}</a></h3>
-	{% thumbnail all "100x100" crop="center" as im %}
-	<a href="{% url 'edit_view' %}">
-	<img src= "/static/{{im}}" width="{{ im.width }}" height="{{ im.height }}" /></a>
-	{% endthumbnail %}
-	<h3><a href="{% url 'logout' %}">Logout</a>
-	</h3>
-	</center>
-	{% endif %}
-
-	Current Time : {{ time }}	
-	</div>
-	</div>
+		
+		<div class="newbox">
+		<div class="doc">
+		<center><h1 class="rest">
+		<a href="{% url 'home' %}">My Restaurant</a></h1>	
+		<h3><a href="{% url 'cart' %}">Cart</a></h3>
+		Current Time : {{ time }}	
+		</div>
+		</div>
 	</head>
 	{% endblock %}
 
 <body>
 	<br />	
-{% block content %}
 	<meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate, post-check=0, pre-check=0" /> 
 	<meta http-equiv="Pragma" content="no-cache" />
 
-	<nav class="navbar navbar-default ">
+	<nav class="navbar navbar-hover">
   	<div class="container-fluid">
-    <ul class="navbar-header"></div>
-    
+    <ul class="navbar-header"></div>    
     <ul class="nav navbar-nav">
   	<li><a href="{% url 'home' %}">{% bootstrap_button 'HOME' %}</a></li>
     
@@ -119,28 +65,118 @@
 	<a class="dropdown-toggle" data-toggle="dropdown"  href="{% url 'order' %}">{% bootstrap_button 'ORDER' %}<span class="caret"></span></a>
 	<ul class="dropdown-menu">
 	<li><a href="{% url 'order' %}">{% bootstrap_button 'MAKE AN ORDER' %}</a></li>
+	<li><a href="{% url 'create_order' %}">{% bootstrap_button 'CREATE AN ORDER' %}</a></li>
 	<li><a href="{% url 'cart' %}">{% bootstrap_button 'ADDED TO CART' %}</a></li>
+	<li><a href="{% url 'current' %}">{% bootstrap_button 'CURRENT CREATED ORDERS' %}</a></li>
 	</ul>
 
 	
 	
 	<li class="dropdown">
-	<a class="dropdown-toggle" data-toggle="dropdown"  href="{% url 'table' %}">{% bootstrap_button 'TABLE' %}<span class="caret"></span></a>
+	<a class="dropdown-hover" data-toggle="dropdown"  href="{% url 'table' %}">{% bootstrap_button 'TABLE' %}<span class="caret"></span></a>
 	<ul class="dropdown-menu">
 	<li><a href="{% url 'table' %}">{% bootstrap_button 'BOOK TABLE' %}</a></li>
 	<li><a href="{% url 'render_table' %}">{% bootstrap_button 'BOOKED TABLES' %}</a></li>
 	</ul>
 	<li><a href="{% url 'comment' %}">{% bootstrap_button 'COMMENT' %}</a></li>		
 	<li><a href="{% url 'contact' %}">{% bootstrap_button 'CONTACT US' %}</a></li>		
-	<li><a href="{% url 'about' %}">{% bootstrap_button 'ABOUT US' %}</a></li>
-	 </ul>
-  </div>
-</nav>
+	<li><a href="{% url 'about' %}">{% bootstrap_button 'ABOUT US' %}</a></li>		 
+	 
+	{% if not user.is_active %} 
+	
+	 <li class="dropdown">
+	<a class="dropdown-hover" data-toggle="dropdown"  href="{% url 'table' %}">{% bootstrap_button 'LOGIN' %}<span class="caret"></span></a>
+		<ul id="login-dp" class="dropdown-menu">
+		<li>
+		<div class="row">
+		<div class="col-md-12">
+
+	Login via
+	<div class="social-buttons">
+	{% comment %}
+	 <a href="/" id="google-plus-button" class="btn btn-fb">
+	onclick="return popitup('{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}')">
+	  Google</a>
+	  {% endcomment %}
+	<a class="btn btn-fb" href="{% url 'social:begin' 'google-oauth2' %}?next={{ request.path }}">Google</a>
+	</div>	
+	{% comment %}	
+		<a href="#" class="btn btn-fb"><i class="fa fa-facebook"></i> Facebook</a>
+		<a href="#" class="btn btn-tw"><i class="fa fa-twitter"></i> Twitter</a>
+	</div>
+	{% endcomment %}
+	{% bootstrap_form_errors form %}
+ 	<form class="form-horizontal" enctype="multipart/form-data" action="{% url 'login' %}" method="post" role="form">
+  	{% csrf_token %}
+  	{% bootstrap_form form layout='inline' %}
+
+     <div class="help-block text-right"><a href="{% url 'password_reset' %}">Forget the password ?</a></div>
+	</div>
+
+	<div class="modal-footer"> 
+	 <center>
+		<div class="form-group">
+		 <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+	</div>
+	  </center>	   
+	 </div>
+	</form>
+		
+	<div class="bottom text-center">
+		New here ? <a href="{% url 'register' %}"><b>Register</b></a>		
+	</div>
+		
+	{% else %}
+	 	<li class="dropdown">
+	 	<a class="dropdown-toggle" data-toggle="dropdown"  href="{% url 'login' %}">
+	 	{% bootstrap_button 'USERPROFILE' %}<span class="caret"></span></a>
+	 	<ul class="dropdown-menu">
+	 	<li>
+	 		{% if all %}
+	 		{% thumbnail all "100x100" crop="center" as im %}
+			<a href="{% url 'user_view' %}">
+			<img src= "/static/{{im}}" width="{{ im.width }}" height="{{ im.height }}" /></a>
+			{% endthumbnail %}</li>
+			{% else %}
+			<a href="{% url 'user_view' %}">
+			<img class="get_photo" src="https://ssl.gstatic.com/accounts/ui/avatar_2x.png">
+			{% endif %}
+			</a>
+		 	<li><a href="{% url 'user_view' %}"><h3>Welcome {{user}}</h3></a></li>	 	
+		 	<li><a href="{% url 'edit_view' %}">
+			<button type="button" class="btn btn-primary">EditProfile</button>
+		 	</a></li>
+		 	<li><a href="{% url 'logout' %}">
+		 	<button type="button" class="btn btn-primary">Logout</button>
+		 	</a></li>	 	
+		 </ul>
+	{% endif %}	
+
+		
+		</ul>
+		</div>
+	</nav>
+	{% block content %}
+
 	{% endblock %}
 
-</body>
-{% block footer %}
-<center><h3>{{message_login}}</h3></center>
-<center><h3>{{message}}</h3></center>
-{% endblock %}
-</html>
+		</body>
+		{% block footer %}
+		<center><h3>{{message_login}}</h3></center>
+		<center><h3>{{message}}</h3></center>
+		{% endblock %}
+		</html>
+
+
+
+
+
+			{% comment %}
+			<div class="checkbox">
+				 <label>
+				 <input type="checkbox"> keep me logged-in
+				 </label>
+			</div>
+			 <div class="help-block text-right"><a href="">Forget the password ?</a></div>
+			</div>		
+			{% endcomment %}

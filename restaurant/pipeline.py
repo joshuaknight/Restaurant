@@ -1,13 +1,23 @@
 from django.contrib.auth.models import User
 from django.contrib.auth.models import AnonymousUser
-from .models import Profile
+from .models import *
 
-def save_profile(stratergy,user=None, *args, **kwargs):
-	if user is None:
-		profile = Profile()
-		profile.email = strategy.session_get('email')
-		profile.firstname = response.get('first_name')
-		profile.fullname = response.get('fullname')		
-		profile.lastname = response.get('last_name')		
-		profile.username = response.get('username')		
-		profile.save()
+def save_profile(user,response,*args, **kwargs):	
+    username = kwargs['details']['username']
+    first_name = kwargs['details']['first_name']
+    last_name = kwargs['details']['last_name']
+    email = kwargs['details']['email']    
+    if Signup.objects.filter(username=username).exists():
+        pass
+    else:
+        new_profile = Profile(username = username,
+        	firstname = first_name,
+        	lastname =last_name,email = email)        
+        new_profile.save()
+        
+        new_signup = Signup(username=username,
+        		firstname = first_name,lastname = last_name ,emailid = email)
+        new_signup.save()
+    return kwargs
+
+    

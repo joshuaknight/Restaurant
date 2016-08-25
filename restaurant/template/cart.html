@@ -1,25 +1,38 @@
 {% include "base.html" %}
 {% load static %}
 {% load bootstrap3 %}
-{% block title %}
+{% block header %}
+
 {% endblock %}
 {% load thumbnail %}
 {% block content %}
 
 <div class="container">
 	{% if cart_list %}
-		{% for i in cart_list %}
+		<h3>Total Number of {{cart_list.count}} items In Cart</h3>		
 			<div class="row">
-				<div class="col-sm-12">
-					<div class="thumbnail">
-						{% thumbnail i.photo "100x100" crop="center" as im %}
-						<img src= "/static/{{im}}" class="photo" />
-						{% endthumbnail %}			
-					</div>				
-					{{i.order_name}}
-			</div>
-			</div>
-		{% endfor %}
+				<div class="col-sm-5">									
+					<table class="table table-hover table-bordered">					
+						<tr>
+						<th>Order Name</th>
+						<th>Quantity</th>
+						<th>Flavour</th>
+						<th>Edit Item</th>
+						</tr>						
+						<tr>
+						<td>{{cart_list.order_name}}</td>
+						<td>{{cart_list.quantity}}</td>
+						<td>{{cart_list.flavour}}</td>
+						<td>
+								
+							{% bootstrap_icon 'remove' %}
+						
+						</td>
+						</tr>
+						
+					</table>
+				</div>
+			</div>		
 	{% else %}
 		<h3>No items added to the cart</h3>	
 	{% endif %}
