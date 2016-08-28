@@ -27,19 +27,19 @@
 <h3>
 <a id="viewpy" class="anchor" href="#viewpy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>view.py</h3>
 
-<p>class Order_Table(FormView):
-    template_name = 'form.html'
-    form_class = Order_table_Form   </p>
+<pre><code>   class Order_Table(FormView):
+     template_name = 'form.html'
+     form_class = Order_table_Form  
 
-<pre><code>def get_context_data(self,**kwargs):
+    def get_context_data(self,**kwargs):
     context = super(Order_Table, self).get_context_data(**kwargs)
     context['key'] = 'BOOK'
     return context
 
-def get_success_url(self):
+    def get_success_url(self):
     return reverse('render_table')  
 
-def form_valid(self,form):
+    def form_valid(self,form):
     form.save()
     return super(Order_Table,self).form_valid(form) 
 </code></pre>
@@ -47,22 +47,24 @@ def form_valid(self,form):
 <h3>
 <a id="modelspy" class="anchor" href="#modelspy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>models.py</h3>
 
-<p>class OrderSpecial(models.Model):
-    Quantity = models.IntegerField()
-    Select = models.CharField(max_length = 100,validators=[validate_recepie])
-    Flavour = models.CharField(max_length = 100,validators=[validate_recepie])
-    Toppings = models.CharField(max_length=100,validators=[validate_recepie])
-    Describe = models.TextField(max_length=100,validators = [validate_describe])
-    photo = models.ImageField(upload_to = 'order_pics/')</p>
+<pre><code>   class OrderSpecial(models.Model):
+     Quantity = models.IntegerField()
+     Select = models.CharField(max_length = 100,validators=[validate_recepie])
+     Flavour = models.CharField(max_length = 100,validators=[validate_recepie])
+     Toppings = models.CharField(max_length=100,validators=[validate_recepie])
+     Describe = models.TextField(max_length=100,validators = [validate_describe])
+     photo = models.ImageField(upload_to = 'order_pics/')
+</code></pre>
 
 <h3>
 <a id="urlspy" class="anchor" href="#urlspy" aria-hidden="true"><span aria-hidden="true" class="octicon octicon-link"></span></a>urls.py</h3>
 
-<p>url(r'^order/$', new_order.as_view(),name = 'order'),
-    url(r'^order/add/(?P\d+)', add_order,name = 'add_order'),
-    url(r'^order/create$', create_order.as_view(),name = 'create_order'),
-    url(r'^order/current/$',render_order.as_view(), name='current'),
-    url(r'^order/delete/(?P\d+)', order_delete.as_view(),name = 'order_delete'),</p>
+<pre><code>url(r'^order/$', new_order.as_view(),name = 'order'),
+url(r'^order/add/(?P&lt;pk&gt;\d+)', add_order,name = 'add_order'),
+url(r'^order/create$', create_order.as_view(),name = 'create_order'),
+url(r'^order/current/$',render_order.as_view(), name='current'),
+url(r'^order/delete/(?P&lt;pk&gt;\d+)', order_delete.as_view(),name = 'order_delete'),
+</code></pre>
 
       <footer class="site-footer">
         <span class="site-footer-owner"><a href="https://github.com/joshuaknight/Restaurant">MyRestaurant</a> is maintained by <a href="https://github.com/joshuaknight">joshuaknight</a>.</span>
